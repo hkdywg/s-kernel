@@ -2,7 +2,7 @@
 # Global Makefile
 # Author: hkdywg <hkdywg@163.com>
 #
-# Copyright (C) 2024 kevin
+# Copyright (C) 2024 kernel
 #
 #
 
@@ -75,8 +75,7 @@ CFLAGS_KERNEL 	=
 AFLAGS_KERNEL 	=
 
 INCLUDE 	:= -Iinclude \
-					$(if $(KBUILD_SRC), -I$(srctree)/include) \
-					-include include/generated/autoconf.h
+					$(if $(KBUILD_SRC), -I$(srctree)/include) 
 
 
 ARCH := $(subst ",,$(CONFIG_ARCH))
@@ -107,25 +106,49 @@ SUB_TARGET :=
 
 export SUB_TARGET
 
-%config: scripts_basic outputmakefile FORCE
-	$(Q)mkdir -p include/config
-	$(Q)$(MAKE) $(build)=scripts/kconfig $@
-
-
 _all:all
 
--include boot/Makefile
--include common/Makefile
--include driver/Makefile
--include fs/Makefile
--include init/Makefile
--include mem/Makefile
--include task/Makefile
+init-y 		:= init/
+core-y 		:= task/ mem/ ipc/
+fs-y 		:= fs/
+driver-y 	:= driver/
+common-y 	:= common/
+
+build-dirs := $(patsubst %/,%,$(filter %/, $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y)))
+
+init-y 		:= $(patsubst %/, %/built-in.a, $(init-y))
+core-y 		:= $(patsubst %/, %/built-in.a, $(core-y))
+fs-y 		:= $(patsubst %/, %/built-in.a, $(fs-y))
+driver-y 	:= $(patsubst %/, %/built-in.a, $(driver-y))
+common-y 	:= $(patsubst %/, %/built-in.a, $(common-y))
+
+export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y)
+
+# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=dir
+# Usage:
+# $(Q)$(MAKE) $(build)=dir
+build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
+
+kernel-deps := $(KBUILD_KERNEL_OBJS)
+
+cmd_link_kernel = $(LD)  -o $@ $^ 
+
+kernel: $(kernel-deps) 
+	@$(cmd_link_kernel)
+	@echo "build kernel done"
+
+# The actual objects are generate
+$(sort $(kernel-deps)): $(build-dirs)
+
+# Handle descending into subdirectories listed in $(build-dirs)
+# Preset locale variables to speed up the build process. Limit locale
+# tweaks to this spot to avoid wrong language settings when running
+# Error messages still appears in the original language
+$(build-dirs): FORCE
+	@$(Q)$(MAKE) $(build)=$@ need-builtin=1
 
 # The all:target is the default when no target is given on the command line
-all: $(SUB_TARGET)
-	@[ -d $(srctree)/dl ] || mkdir -p $(srctree)/dl
-	@echo "build default target: $(SUB_TARGET)"
+all: kernel $(SUB_TARGET)
 
 dist_clean:
 	@rm build_out/ -rf
@@ -133,10 +156,11 @@ dist_clean:
 clean:
 	@rm build_out/ -rf
 
-PHONY += help
+PHONY += help kernel
 
 help:
-	@echo "srctree is $(srctree)"
-	@echo "CONFIG_SHELL is $(CONFIG_SHELL)"
+	@echo 'clean 	- Remove all generate files'
+	@echo 'all 		- Build all targets'
+	@echo 'kernel 	- Build the kernel'
 
 
