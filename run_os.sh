@@ -8,7 +8,24 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation.
 
-LINK_PATH=/opt/poky/2.4.3/sysroots/aarch64-poky-linux
-OS_KERNEL=build_out/init/kernel
 
-qemu-aarch64 -L ${LINK_PATH} ${OS_KERNEL}
+QEMU=/home/yinwg/ywg_workspace/prj/LinuxLab/workspace/qemu/build/aarch64-softmmu/qemu-system-aarch64
+KERNEL_IMAGE=build_out/init/kernel
+ROOT_FS_IMG=build_out/root_fs.img
+RAM_SIZE=256
+CORE_TYPE=cortex-a53
+CORE_NUM=2
+
+if [ ! -f ${ROOT_FS_IMG} ];then
+	dd if=/dev/zero of=${ROOT_FS_IMG} bs=1M count=128
+	mkfs.fat ${ROOT_FS_IMG}
+fi
+
+sudo ${QEMU} \
+    -M virt \
+    -m ${RAM_SIZE} \
+    -cpu ${CORE_TYPE} \
+    -smp ${CORE_NUM} \
+    -kernel ${KERNEL_IMAGE} \
+    -nographic 
+
