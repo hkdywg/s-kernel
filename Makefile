@@ -30,6 +30,9 @@ endif
 
 ifneq ($(KBUILD_OUTPUT),)
 saved-output := $(KBUILD_OUTPUT)
+abs_objtree := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
+$(if $(abs_objtree),,\
+	$(error failed to create output directory "$(KBUILD_OUTPUT)"))
 endif
 
 srctree 	:= $(CURDIR)
