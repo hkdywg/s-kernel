@@ -1,24 +1,31 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2022, RT-Thread Development Team
-#
-# SPDX-License-Identifier: GPL-2.0
-#
-# Change Logs:
-# Date           Author       Notes
-# 2022-02-1      Bernard      The first version
-#
+# get_toolchain.py
+# 
+# (C) 2024.12.27 <hkdywg@163.com>
+# 
+# This program is free software; you can redistribute it and/r modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+
 import os
 import sys
 import platform
 from ci import CI
+
 toolchains_config = {
     'aarch64':
     {
         'Linux' : 'gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz',
     },
 }
+
+env_variables = {
+    'COMPILE_TOOL_PATH' : 'toolchain_path',
+    'PATH' : '$PATH:$COMPILE_TOOL_PATH',
+    'CROSS_COMPILE' : 'cross_comile'
+}
+
 if __name__ == '__main__':
     # download toolchain
     if len(sys.argv) > 1:
@@ -34,8 +41,9 @@ if __name__ == '__main__':
     except:
         print('not found target')
         exit(0)
-    #ci.downloadFile(zfile, URL)
+    ci.downloadFile(zfile, URL)
     ci.extractZipFile(zfile, toolchain_path)
-    print("{zfile}")
-    ci.delFile(zfile)
+    env_variables['COMPILE_TOOL_PATH'] = toolchain_path + '/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin'
+    env_variables['CROSS_COMPILE'] = 'aarch64-linux-gnu-'
+    ci.generate_env_file(env_variables,'env_config.sh')
 
