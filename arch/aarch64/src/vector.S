@@ -17,7 +17,7 @@
 .global system_vectors
 .global vector_error
 .global vector_irq
-.global vector_frq
+.global vector_fiq
 
 system_vectors:
 .align 11
@@ -39,5 +39,49 @@ set_current_vbar:
 	msr vbar_el1, x0
 	ret
 
+	.align 8
+vector_fiq:
+	save_context
+	stp 	x0, x1, [sp, #-0x10]!
+	bl 		trap_fiq
+	ldp 	x0, x1, [sp], #0x10
+	restore_context
+
+
+	.align 8
+vector_irq:
+	save_context
+	stp 	x0, x1, [sp, #-0x10]!
+
+	bl 		interrupt_enter
+	bl 		trap_irq
+	bl 		interrupt_leave
+
+	ldp 	x0, x1, [sp], #0x10
+	adr 	x1, thread_switch_interrupt_flag
+	ldr 	x2, [x1]
+	cmp 	x2, #1
+	b.ne 	vector_irq_exit
+
+	mov 	x2, #0 		/* clear flag */
+	str 	x2, [x1]
+
+	adr 	x3, interrupt_from_thread
+	ldr 	x4, [x3]
+	str 	x0, [x4]	/* store sp in preempted task's TCB */
+						/* assume x0 stores the stack pinter SP of the current thread */
+
+	adr 	x3, interrupt_to_thread
+	ldr 	x4, [x3]
+	ldr 	x0, [x4]	/* get new task's pointer */
+vector_irq_exit:
+	restore_context
+
+
+	.align 8
+vector_error:
+	save_context
+	bl 		trap_error
+	b 		.
 
 
