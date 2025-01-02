@@ -104,7 +104,19 @@ ifndef obj
 $(warning kbuild: Makefile.build is included improperly)
 endif
 
-real-obj := $(addprefix $(obj)/, $(obj-y))
+#
+# Handle objects in subdirs
+#
+subdir-obj-y := $(patsubst %/, %/built-in.a, $(filter %/, $(obj-y)))
+subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
+subdir-y := $(addprefix $(obj)/, $(patsubst %/,%,$(filter %/, $(obj-y))))
+ifneq ($(subdir-obj-y),)
+include $(subdir-y)/Makefile
+real-obj := $(addprefix $(subdir-y)/, $(filter %.o, $(obj-y)))
+else
+real-obj := $(addprefix $(obj)/, $(filter %.o, $(obj-y)))
+endif
+
 
 # ===========================================================================
 
@@ -152,7 +164,7 @@ cmd_as_o_S       = $(CC) $(a_flags) -c -o $@ $<
 $(obj)/%.o: $(src)/%.S FORCE
 	@$(cmd_as_o_S)
 
-targets += $(real-objs-y) $(lib-y)
+targets += $(real-objs-y) $(lib-y) $(subdir-obj-y)
 targets += $(extra-y) $(MAKECMDGOALS) $(always)
 
 # Linker scripts preprocessor (.lds.S -> .lds)
@@ -167,7 +179,7 @@ $(obj)/%.lds: $(src)/%.lds.S FORCE
 # ---------------------------------------------------------------------------
 
 # To build objects in subdirs, we need to descend into the directories
-$(sort $(subdir-obj-y)): $(subdir-ym) ;
+#$(sort $(subdir-obj-y)): $(subdir-ym) ;
 
 #
 # Rule to compile a set of .o files into one .o file
