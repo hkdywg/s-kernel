@@ -111,7 +111,7 @@ export SUB_TARGET
 
 _all:all
 
-init-y 		:= init/
+init-y 		:= init/ arch/
 core-y 		:= task/ mem/ ipc/
 fs-y 		:= fs/
 driver-y 	:= driver/
