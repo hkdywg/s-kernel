@@ -2,7 +2,7 @@
  *  context.S
  *
  *  brif
- *      system vectors, used by interrupt
+ *      context operation, include save and restore and switch
  *  
  *  (C) 2025.01.02 <hkdywg@163.com>
  *
