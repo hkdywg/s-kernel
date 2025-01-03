@@ -117,6 +117,16 @@ else
 real-obj := $(addprefix $(obj)/, $(filter %.o, $(obj-y)))
 endif
 
+#
+# compilation parameter 
+#
+c_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
+		  -I$(srctree)/$(obj)/include \
+		  -I$(srctree)/$(subdir-y)/include
+
+a_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
+		  -I$(srctree)/$(obj)/include \
+		  -I$(srctree)/$(subdir-y)/include
 
 # ===========================================================================
 

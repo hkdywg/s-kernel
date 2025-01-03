@@ -77,8 +77,10 @@ CHECKFLAGS 	:= -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 CFLAGS_KERNEL 	=
 AFLAGS_KERNEL 	=
 
-INCLUDE 	:= -Iinclude \
-					$(if $(KBUILD_SRC), -I$(srctree)/include) 
+KERNEL_INCLUDE 	:= -I$(srctree)/include \
+					-I$(srctree)/arch/aarch64/include
+
+NOSTDINC_FLAGS = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
 
 ARCH := $(subst ",,$(CONFIG_ARCH))
@@ -86,7 +88,7 @@ ARCH := $(subst ",,$(CONFIG_ARCH))
 export ARCH SRCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE AWK GENKSYMS INSTALLKERNEL PERL UTS_MACHINE
-export HOSTCXX HOSTCXXFLAGS
+export HOSTCXX HOSTCXXFLAGS NOSTDINC_FLAGS
 
 ifeq ($(KBUILD_VERBOSE),1)
 	quiet =
