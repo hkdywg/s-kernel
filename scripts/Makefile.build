@@ -27,11 +27,12 @@ ldflags-y  :=
 subdir-asflags-y :=
 subdir-ccflags-y :=
 
+
 # For backward compatibility check that these variables do not change
 save-cflags := $(CFLAGS)
-
 # The filename Kbuild has precedence over Makefile
-kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+#kbuild-dir := $(if $(KBUILD_SRC),$(KBUILD_SRC)/)$(src)
+kbuild-dir := $(srctree)/$(src)
 kbuild-file := $(if $(wildcard $(kbuild-dir)/Kbuild),$(kbuild-dir)/Kbuild,$(kbuild-dir)/Makefile)
 include $(kbuild-file)
 
@@ -104,18 +105,30 @@ ifndef obj
 $(warning kbuild: Makefile.build is included improperly)
 endif
 
+ifneq ($(KBUILD_SRC),)
+obj_prefix := $(KBUILD_SRC)/
+endif
+
 #
 # Handle objects in subdirs
 #
 subdir-obj-y := $(patsubst %/, %/built-in.a, $(filter %/, $(obj-y)))
-subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
-subdir-y := $(addprefix $(obj)/, $(patsubst %/,%,$(filter %/, $(obj-y))))
+subdir-obj-y := $(addprefix $(obj_prefix)$(obj)/, $(subdir-obj-y))
+subdir-y := $(addprefix $(srctree)$(obj)/, $(patsubst %/,%,$(filter %/, $(obj-y))))
+subdir-obj-p := $(dir $(abspath $(subdir-obj-y)))
+
+subdir := $(addprefix $(obj)/, $(patsubst %/,%,$(filter %/, $(obj-y))))
+
+
 ifneq ($(subdir-obj-y),)
 include $(subdir-y)/Makefile
-real-obj := $(addprefix $(subdir-y)/, $(filter %.o, $(obj-y)))
+real-obj := $(addprefix $(obj_prefix)$(subdir)/, $(filter %.o, $(obj-y)))
 else
-real-obj := $(addprefix $(obj)/, $(filter %.o, $(obj-y)))
+real-obj := $(addprefix $(obj_prefix)$(obj)/, $(filter %.o, $(obj-y)))
 endif
+
+_dummy := $(shell [ -d $(subdir-obj-p) ] || mkdir -p $(subdir-obj-p))
+
 
 #
 # compilation parameter 
@@ -126,7 +139,7 @@ c_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
 
 a_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
 		  -I$(srctree)/$(obj)/include \
-		  -I$(srctree)/$(subdir-y)/include
+		  -I$(srctree)/$(subdir)/include
 
 # ===========================================================================
 
@@ -142,12 +155,12 @@ __build: $(builtin-target)
 # Default is built-in, unless we know otherwise
 cmd_cc_s_c       = $(CC) $(c_flags) -fverbose-asm -S -o $@ $<
 
-$(obj)/%.s: $(src)/%.c FORCE
+$(obj_prefix)%.s: %.c FORCE
 	$(Q)$(cmd_cc_s_c)
 
 cmd_cc_i_c       = $(CPP) $(c_flags)   -o $@ $<
 
-$(obj)/%.i: $(src)/%.c FORCE
+$(obj_prefix)%.i: %.c FORCE
 	$(Q)$(cmd_cc_i_c)
 
 # C (.c) files
@@ -156,7 +169,7 @@ $(obj)/%.i: $(src)/%.c FORCE
 cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
 
 # Built-in and composite module parts
-$(obj)/%.o: $(src)/%.c FORCE
+$(obj_prefix)%.o: %.c FORCE
 	$(Q)$(cmd_cc_o_c)
 
 # Compile assembler sources (.S)
@@ -166,12 +179,12 @@ modkern_aflags := $(KBUILD_AFLAGS_KERNEL) $(AFLAGS_KERNEL)
 
 cmd_as_s_S       = $(CPP) $(a_flags)   -o $@ $< 
 
-$(obj)/%.s: $(src)/%.S FORCE
+$(obj_prefix)%.s: %.S FORCE
 	$(Q)$(cmd_as_s_S)
 
 cmd_as_o_S       = $(CC) $(a_flags) -c -o $@ $<
 
-$(obj)/%.o: $(src)/%.S FORCE
+$(obj_prefix)%.o: %.S FORCE
 	$(Q)$(cmd_as_o_S)
 
 targets += $(real-objs-y) $(lib-y) $(subdir-obj-y)
@@ -182,7 +195,7 @@ targets += $(extra-y) $(MAKECMDGOALS) $(always)
 cmd_cpp_lds_S = $(CPP) $(cpp_flags) -P -C -U$(ARCH) \
 	                     -D__ASSEMBLY__ -DLINKER_SCRIPT -o $@ $<
 
-$(obj)/%.lds: $(src)/%.lds.S FORCE
+$(obj_prefix)%.lds: %.lds.S FORCE
 	$(Q)$(cmd_cpp_lds_S)
 
 # Build the compiled-in targets

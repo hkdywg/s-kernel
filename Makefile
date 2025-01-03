@@ -33,18 +33,22 @@ saved-output := $(KBUILD_OUTPUT)
 abs_objtree := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
 $(if $(abs_objtree),,\
 	$(error failed to create output directory "$(KBUILD_OUTPUT)"))
+$(if $(KBUILD_VERBOSE:1=),@)$(MAKE) -C $(KBUILD_OUTPUT)     \
+						KBUILD_SRC=$(CURDIR)         KBUILD_VERBOSE=$(KBUILD_VERBOSE)   \
+    					-f $(CURDIR)/Makefilea $@
+
 endif
 
-srctree 	:= $(CURDIR)
-objtree 	:= $(CURDIR)
+CUR_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+srctree 	:= $(CUR_DIR)
+objtree 	:= $(CUR_DIR)
 src 		:= $(srctree)
 obj 		:= $(objtree)
-
 VPATH := $(srctree)
 
-export srctree objtree VPATH
 
--include include/config/auto.conf
+export srctree objtree VPATH MAKEFILE_DIR
 
 # SHELL config
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ];then echo $$BASH;\
@@ -132,7 +136,7 @@ export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y)
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=dir
 # Usage:
 # $(Q)$(MAKE) $(build)=dir
-build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
+build := -f $(srctree)/scripts/Makefile.build obj
 
 kernel-deps := $(KBUILD_KERNEL_OBJS)
 
