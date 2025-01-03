@@ -127,8 +127,7 @@ else
 real-obj := $(addprefix $(obj_prefix)$(obj)/, $(filter %.o, $(obj-y)))
 endif
 
-_dummy := $(shell [ -d $(subdir-obj-p) ] || mkdir -p $(subdir-obj-p))
-
+_dummy := $(foreach d,$(real-obj), $(shell [ -d $(dir $(d)) ] || mkdir -p $(dir $(d))))
 
 #
 # compilation parameter 
