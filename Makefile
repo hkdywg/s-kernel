@@ -10,6 +10,10 @@ VERSION = 1
 PATCHLEVEL = 0
 SUBLEVEL = 0
 
+# Default target
+PHONY := _all
+_all:
+
 MAKEFLAGS += -rR --no-print-directory
 
 # Use `make V=1` to see full commands
@@ -18,14 +22,11 @@ ifeq ("$(origin V)", "command line")
 	KBUILD_VERBOSE = $(V)
 endif
 
-
-# Default target
-PHONY := _all
-_all:
-
 # if want to locate output file in a separate directory, can use `make O=outputdir`
+ifeq ($(KBUILD_SRC),)
 ifeq ("$(origin O)", "command line")
 	KBUILD_OUTPUT := $(O)
+endif
 endif
 
 ifneq ($(KBUILD_OUTPUT),)
@@ -33,11 +34,14 @@ saved-output := $(KBUILD_OUTPUT)
 abs_objtree := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
 $(if $(abs_objtree),,\
 	$(error failed to create output directory "$(KBUILD_OUTPUT)"))
-$(if $(KBUILD_VERBOSE:1=),@)$(MAKE) -C $(KBUILD_OUTPUT)     \
-						KBUILD_SRC=$(CURDIR)         KBUILD_VERBOSE=$(KBUILD_VERBOSE)   \
-    					-f $(CURDIR)/Makefilea $@
-
+_all:
+	$(if $(KBUILD_VERBOSE:1=),@,@)$(MAKE) -C $(KBUILD_OUTPUT) \
+	KBUILD_SRC=$(KBUILD_OUTPUT)  KBUILD_VERBOSE=$(KBUILD_VERBOSE) \
+    -f $(CURDIR)/Makefile $@
+skip-makefile := 1
 endif
+
+ifeq ($(skip-makefile),)
 
 CUR_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
@@ -172,4 +176,4 @@ help:
 	@echo 'all 		- Build all targets'
 	@echo 'kernel 	- Build the kernel'
 
-
+endif
