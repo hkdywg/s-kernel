@@ -36,7 +36,7 @@
 
 	mrs 	x3, spsr_el1
 	mrs 	x2, elr_el1
-	stp 	x2, x3, [sp. #-0x10]!
+	stp 	x2, x3, [sp, #-0x10]!
 	mov 	x0, sp 					/* move sp into x0 for saving */
 
 	/* Switch to use the ELx stack pointer */
@@ -68,7 +68,7 @@
 
 	mrs 	x3, spsr_el1
 	mov 	x2, x30
-	stp 	x2, x3, [sp. #-0x10]!
+	stp 	x2, x3, [sp, #-0x10]!
 	mov 	x0, sp 					/* move sp into x0 for saving */
 
 	/* Switch to use the ELx stack pointer */
