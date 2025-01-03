@@ -30,7 +30,7 @@ __asm_dcache_level:
 	mov 	x3, #0x3ff 
 	and 	x3, x3, x6, lsr #3 		/* x3 <- max number of #ways */
 	mov 	x4, #0x7fff
-	adn 	x4, x4, x6, lsr #13 	/* x4 <- max number of #sets */
+	and 	x4, x4, x6, lsr #13 	/* x4 <- max number of #sets */
 loop_set:
 	mov 	x6, x3 					/* x6 <- working copy of #ways */
 loop_way:
@@ -64,7 +64,7 @@ __asm_dcache_all:
 	lsr 	x11, x10, #24
 	and 	x11, x11, #0x7 		/* x11 <- loc */
 	cbz 	x11, finished 		/* if loc is 0, exit */
-	mov 	x15, lr
+	mov 	x15, x30
 	mov 	x0, #0 				/* start flush at cache level 0 */
 loop_level:
 	lsl 	x12, x0, #1
@@ -83,7 +83,7 @@ skip:
 	msr 	csselr_el1, x0 		/* restore csselr_el1 */
 	dsb 	sy
 	isb
-	mov 	lr, x15
+	mov 	x30, x15
 finished:
 	ret
 
@@ -127,8 +127,8 @@ __asm_flush_dcache_range:
 
 .global __asm_invalidate_icache_all
 __asm_invalidate_icache_all:
-	icc 	ialluis
-	isb 	sy
+	ic  	ialluis				/* invalidate the entire command cache */
+	isb 	sy					/* Instruction sync barrier */
 	ret
 
 .global __asm_flush_l3_cache
