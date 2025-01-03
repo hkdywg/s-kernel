@@ -133,12 +133,12 @@ __build: $(builtin-target)
 cmd_cc_s_c       = $(CC) $(c_flags) -fverbose-asm -S -o $@ $<
 
 $(obj)/%.s: $(src)/%.c FORCE
-	@$(cmd_cc_s_c)
+	$(Q)$(cmd_cc_s_c)
 
 cmd_cc_i_c       = $(CPP) $(c_flags)   -o $@ $<
 
 $(obj)/%.i: $(src)/%.c FORCE
-	@$(cmd_cc_i_c)
+	$(Q)$(cmd_cc_i_c)
 
 # C (.c) files
 # The C file is compiled and updated dependency information is generated.
@@ -147,7 +147,7 @@ cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
 
 # Built-in and composite module parts
 $(obj)/%.o: $(src)/%.c FORCE
-	@$(cmd_cc_o_c)
+	$(Q)$(cmd_cc_o_c)
 
 # Compile assembler sources (.S)
 # ---------------------------------------------------------------------------
@@ -157,12 +157,12 @@ modkern_aflags := $(KBUILD_AFLAGS_KERNEL) $(AFLAGS_KERNEL)
 cmd_as_s_S       = $(CPP) $(a_flags)   -o $@ $< 
 
 $(obj)/%.s: $(src)/%.S FORCE
-	@$(cmd_as_s_S)
+	$(Q)$(cmd_as_s_S)
 
 cmd_as_o_S       = $(CC) $(a_flags) -c -o $@ $<
 
 $(obj)/%.o: $(src)/%.S FORCE
-	@$(cmd_as_o_S)
+	$(Q)$(cmd_as_o_S)
 
 targets += $(real-objs-y) $(lib-y) $(subdir-obj-y)
 targets += $(extra-y) $(MAKECMDGOALS) $(always)
@@ -173,7 +173,7 @@ cmd_cpp_lds_S = $(CPP) $(cpp_flags) -P -C -U$(ARCH) \
 	                     -D__ASSEMBLY__ -DLINKER_SCRIPT -o $@ $<
 
 $(obj)/%.lds: $(src)/%.lds.S FORCE
-	@$(cmd_cpp_lds_S)
+	$(Q)$(cmd_cpp_lds_S)
 
 # Build the compiled-in targets
 # ---------------------------------------------------------------------------
@@ -191,7 +191,7 @@ cmd_link_o_target = $(if $(strip $(obj-y)),\
 		      rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@)
 
 $(builtin-target): $(real-obj) FORCE
-	@$(cmd_link_o_target)
+	$(Q)$(cmd_link_o_target)
 
 
 targets += $(builtin-target)
@@ -208,3 +208,4 @@ FORCE:
 # information in a variable se we can use it in if_changed and friends.
 
 .PHONY: $(PHONY)
+
