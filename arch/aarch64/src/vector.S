@@ -11,6 +11,8 @@
  *  published by the Free Software Foundation.
  * */
 
+#include <context_macro.h>
+
 .text
 
 .global set_current_vbar
@@ -18,6 +20,7 @@
 .global vector_error
 .global vector_irq
 .global vector_fiq
+
 
 system_vectors:
 .align 11
@@ -83,5 +86,4 @@ vector_error:
 	save_context
 	bl 		trap_error
 	b 		.
-
 
