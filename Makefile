@@ -163,11 +163,11 @@ $(build-dirs): FORCE
 # The all:target is the default when no target is given on the command line
 all: kernel $(SUB_TARGET)
 
-dist_clean:
-	@rm build_out/ -rf
+# Files to ignore in find ... statements
+FIND_IGNORE := ! -path "./tools/*"
 
 clean:
-	@rm build_out/ -rf
+	@find . $(FIND_IGNORE) -name '*.[oas]' -type f -print | xargs rm -f
 
 PHONY += help kernel
 
