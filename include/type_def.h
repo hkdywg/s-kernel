@@ -65,5 +65,11 @@ typedef sk_base_t 					sk_off_t;		/* type for offset */
 #define SK_EIO	 					-7				/* IO error */
 #define SK_EINVAL 	 				-8				/* Invalid argument */
 
+/*
+ *	@def SK_NULL
+ *	Similar as the c NULL in C libary
+ */
+#define SK_NULL						(0)
+
 
 #endif
