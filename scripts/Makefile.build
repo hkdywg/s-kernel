@@ -129,12 +129,14 @@ endif
 
 _dummy := $(foreach d,$(real-obj), $(shell [ -d $(dir $(d)) ] || mkdir -p $(dir $(d))))
 
+$(warning --------- $(subdir-y))
+
 #
 # compilation parameter 
 #
 c_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
 		  -I$(srctree)/$(obj)/include \
-		  -I$(srctree)/$(subdir-y)/include
+		  $(if $(subdir-y),-I$(subdir-y)/include)
 
 a_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
 		  -I$(srctree)/$(obj)/include \
