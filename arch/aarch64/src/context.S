@@ -160,9 +160,6 @@ context_switch:
 /*
  * context_switch_interrupt(frome, to)
  */
-.global thread_switch_interrupt_flag
-.global interrupt_from_thread
-.global interrupt_to_thread
 .global context_switch_interrupt
 context_switch_interrupt:
 	adr 	x2, thread_switch_interrupt_flag
@@ -178,3 +175,14 @@ _reswitch:
 	str 	x1, [x2]
 	ret
 
+.global thread_switch_interrupt_flag
+.global interrupt_from_thread
+.global interrupt_to_thread
+.section .data
+	.align 3
+	thread_switch_interrupt_flag:
+		.quad 0
+	interrupt_from_thread:
+		.quad 0
+	interrupt_to_thread:
+		.quad 0
