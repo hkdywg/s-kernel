@@ -129,8 +129,6 @@ endif
 
 _dummy := $(foreach d,$(real-obj), $(shell [ -d $(dir $(d)) ] || mkdir -p $(dir $(d))))
 
-$(warning --------- $(subdir-y))
-
 #
 # compilation parameter 
 #
