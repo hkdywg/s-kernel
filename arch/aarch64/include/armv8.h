@@ -57,7 +57,7 @@ struct hw_exp_stack {
 #define PSTATE_EL2 			((unsigned long long)0x08)
 #define PSTATE_EL3 			((unsigned long long)0x0c)
 
-void sk_hw_set_current_vbar();
+void set_current_vbar();
 
 #endif
 

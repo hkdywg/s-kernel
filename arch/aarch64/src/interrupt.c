@@ -65,7 +65,7 @@ static void default_isr_handler(int vector, void *param)
 
 void sk_hw_vector_init(void)
 {
-	sk_hw_set_current_vbar();
+	set_current_vbar();
 }
 
 /*
