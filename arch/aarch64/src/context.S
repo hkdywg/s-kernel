@@ -114,8 +114,8 @@
 /*
  * interrupt_disable()
  */
-.global interrupt_disable
-interrupt_disable:
+.global hw_interrupt_disable
+hw_interrupt_disable:
 	mrs 	x0, daif
 	msr 	daifset, #3
 	dsb 	sy
@@ -125,8 +125,8 @@ interrupt_disable:
 /*
  * interrupt_enable(level)
  */
-.global interrupt_enable
-interrupt_enable:
+.global hw_interrupt_enable
+hw_interrupt_enable:
 	dsb 	sy
 	mov 	x1, #0xC0
 	ands 	x0, x0, x1
