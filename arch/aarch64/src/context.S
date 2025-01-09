@@ -139,8 +139,8 @@ interrupt_enable_exit:
 /*
  * context_switch_to(to)
  */
-.global context_switch_to
-context_switch_to:
+.global hw_context_switch_to
+hw_context_switch_to:
 	ldr 	x0, [x0]
 	restore_context
 
@@ -148,8 +148,8 @@ context_switch_to:
 /*
  * context_switch(frome, to)
  */
-.global context_switch
-context_switch:
+.global hw_context_switch
+hw_context_switch:
 	mov 	x8, x0
 	mov 	x9, x1
 	save_context_t 
@@ -160,8 +160,8 @@ context_switch:
 /*
  * context_switch_interrupt(frome, to)
  */
-.global context_switch_interrupt
-context_switch_interrupt:
+.global hw_context_switch_interrupt
+hw_context_switch_interrupt:
 	adr 	x2, thread_switch_interrupt_flag
 	ldr 	x3, [x2]
 	cmp 	x3, #1
