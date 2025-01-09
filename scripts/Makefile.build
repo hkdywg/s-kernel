@@ -132,11 +132,11 @@ _dummy := $(foreach d,$(real-obj), $(shell [ -d $(dir $(d)) ] || mkdir -p $(dir 
 #
 # compilation parameter 
 #
-c_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
+c_flags = -g $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
 		  -I$(srctree)/$(obj)/include \
 		  $(if $(subdir-y),-I$(subdir-y)/include)
 
-a_flags =  $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
+a_flags = -g $(NOSTDINC_FLAGS) $(KERNEL_INCLUDE) \
 		  -I$(srctree)/$(obj)/include \
 		  -I$(srctree)/$(subdir)/include
 

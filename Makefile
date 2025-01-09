@@ -147,10 +147,10 @@ link_script := $(srctree)/scripts/link.lds
 
 kernel-deps := $(KBUILD_KERNEL_OBJS)
 
-cmd_link_kernel = $(LD)  -o $@ $^ -T $(link_script) 
+cmd_link_kernel = $(LD)  -o $@ $^ -T $(link_script) -Map=kernel.map
 
 kernel: $(kernel-deps) 
-	@$(cmd_link_kernel)
+	$(Q)$(cmd_link_kernel)
 	@echo "build kernel done"
 
 # The actual objects are generate
