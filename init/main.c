@@ -9,10 +9,29 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  * */
-#include <stdio.h>
+#include <type_def.h>
 
-int main()
+int func_1() 
 {
-	printf("run kernel os\n");
+	sk_uint32_t cnt = SK_UINT32_MAX;
+	while(cnt--);
+
+	return 0;
+}
+
+int func_2() 
+{
+	sk_uint32_t cnt = SK_UINT32_MAX;
+	while(cnt--);
+
+	return 0;
+}
+
+int skernel_startup(void)
+{
+	while(1) {
+		func_1();
+		func_2();
+	}
 	return 0;
 }
