@@ -142,9 +142,12 @@ export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y)
 # $(Q)$(MAKE) $(build)=dir
 build := -f $(srctree)/scripts/Makefile.build obj
 
+# Link scripts
+link_script := $(srctree)/scripts/link.lds
+
 kernel-deps := $(KBUILD_KERNEL_OBJS)
 
-cmd_link_kernel = $(LD)  -o $@ $^ 
+cmd_link_kernel = $(LD)  -o $@ $^ -T $(link_script) 
 
 kernel: $(kernel-deps) 
 	@$(cmd_link_kernel)

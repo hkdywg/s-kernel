@@ -13,8 +13,8 @@
 
 SECTIONS
 {
-	. = 0x40008000
-	. = ALIGN(4096)
+	. = 0x40008000;
+	. = ALIGN(4096);
 	.text :
 	{
 		KEEP(*(.text.entrypoint))		/* The entry point */
