@@ -14,7 +14,7 @@
 #define __ARMV8_H_
 
 /* the exception stack without VFP register */
-struct hw_exp_stack {
+struct sk_hw_exp_stack {
 	unsigned long long pc;
 	unsigned long long spsr;
 	unsigned long long x30;
