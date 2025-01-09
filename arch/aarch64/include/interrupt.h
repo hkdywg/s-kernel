@@ -22,12 +22,6 @@
  */
 typedef void (*sk_isr_handler_t)(int vector, void *param);
 
-struct sk_irq_desc
-{
-	sk_isr_handler_t handler;
-	void 			*param;
-};
-
 void sk_hw_interrupt_mask(int vector);
 void sk_hw_interrupt_umask(int vector);
 void sk_hw_interrupt_ack(int vector);

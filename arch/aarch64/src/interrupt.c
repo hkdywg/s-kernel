@@ -10,11 +10,11 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  * */
-#include "type_def.h"
-#include "config.h"
-#include "interrupt.h"
-#include "armv8.h"
-
+#include <type_def.h>
+#include <config.h>
+#include <interrupt.h>
+#include <armv8.h>
+#include <hw.h>
 
 /* Macro to accress the generic interrupt controller interface */
 #define GIC_CPU_CTRL(hw_base)				__REG32((hw_base) + 0x00U)
