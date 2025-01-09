@@ -13,6 +13,7 @@
 #include <interrupt.h>
 #include <armv8.h>
 #include <type_def.h>
+#include <hw.h>
 
 /*
  * When comes across an instruction which it can't handle,
@@ -22,7 +23,12 @@
  */
 void sk_hw_trap_error(struct sk_hw_exp_stack *regs)
 {
-	sk_hw_cpu_shutdown();
+	sk_uint32_t level;
+	
+	level = hw_interrupt_disable();
+	while(level) {
+		while(1);
+	}
 }
 
 void sk_hw_trap_irq(void)
