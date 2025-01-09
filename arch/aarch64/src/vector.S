@@ -32,7 +32,7 @@ system_vectors:
 	.org (vbar + 0x80 + 0)
 	b vector_irq				/* IRQ/vIRQ */
 	.org (vbar + 0x100 + 0)
-	b vector_frq				/* FIQ/vFIQ */
+	b vector_fiq				/* FIQ/vFIQ */
 	.org (vbar + 0x180 + 0)
 	b vector_error				/* Error/vError */
 
@@ -46,7 +46,7 @@ set_current_vbar:
 vector_fiq:
 	save_context
 	stp 	x0, x1, [sp, #-0x10]!
-	bl 		trap_fiq
+	bl 		sk_hw_trap_fiq
 	ldp 	x0, x1, [sp], #0x10
 	restore_context
 
@@ -56,9 +56,9 @@ vector_irq:
 	save_context
 	stp 	x0, x1, [sp, #-0x10]!
 
-	bl 		interrupt_enter
-	bl 		trap_irq
-	bl 		interrupt_leave
+	bl 		sk_interrupt_enter
+	bl 		sk_hw_trap_irq
+	bl 		sk_interrupt_leave
 
 	ldp 	x0, x1, [sp], #0x10
 	adr 	x1, thread_switch_interrupt_flag
@@ -84,6 +84,6 @@ vector_irq_exit:
 	.align 8
 vector_error:
 	save_context
-	bl 		trap_error
+	bl 		sk_hw_trap_error
 	b 		.
 
