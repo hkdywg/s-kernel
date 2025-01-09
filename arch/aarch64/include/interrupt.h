@@ -13,6 +13,8 @@
 #ifndef __INTERRUPT_H_
 #define __INTERRUPT_H_
 
+#include "type_def.h"
+
 #define MAX_HANDLERS 				96
 
 /*
@@ -29,6 +31,7 @@ struct sk_irq_desc
 void sk_hw_interrupt_mask(int vector);
 void sk_hw_interrupt_umask(int vector);
 void sk_hw_interrupt_ack(int vector);
+sk_int32_t sk_hw_interrupt_get_irq(void);
 sk_isr_handler_t sk_hw_interrupt_install(int vector, sk_isr_handler_t handler, void *param);
 void sk_hw_interrupt_init(void);
 

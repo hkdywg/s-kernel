@@ -15,7 +15,6 @@
 #include "interrupt.h"
 #include "armv8.h"
 
-#define __REG32(x)							(*((volatile unsigned int *)(x)))
 
 /* Macro to accress the generic interrupt controller interface */
 #define GIC_CPU_CTRL(hw_base)				__REG32((hw_base) + 0x00U)
