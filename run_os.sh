@@ -9,18 +9,37 @@
 # published by the Free Software Foundation.
 
 
-QEMU=/home/yinwg/ywg_workspace/prj/LinuxLab/workspace/qemu/build/aarch64-softmmu/qemu-system-aarch64
-KERNEL_IMAGE=build_out/init/kernel
-ROOT_FS_IMG=build_out/root_fs.img
+QEMU=qemu-system-aarch64
+KERNEL_IMAGE=build_out/kernel
 RAM_SIZE=256
 CORE_TYPE=cortex-a53
-CORE_NUM=2
+CORE_NUM=1
 
-if [ ! -f ${ROOT_FS_IMG} ];then
-	dd if=/dev/zero of=${ROOT_FS_IMG} bs=1M count=128
-	mkfs.fat ${ROOT_FS_IMG}
+if [ -z $(which qemu-system-aarch64) ];then
+	echo "please install qemu-system-aarch64 tools"
+	echo "in ubuntu system, can execute the fllowing command to install it"
+	echo "sudo apt update"
+	echo "sudo apt install qemu-system-aarch64"
+	exit 0
 fi
 
+#
+# if use "-d" option, another terminal can use
+# "aarch64-linux-gnu-gdb path/kernel" to debug kernel
+# @note: use "target remote :1234" in the gdb terminal to connect kernel
+#
+if [ $# -eq 1 ];then
+if [ $1 == "-d" ];then
+sudo ${QEMU} \
+    -M virt \
+    -m ${RAM_SIZE} \
+    -cpu ${CORE_TYPE} \
+    -smp ${CORE_NUM} \
+    -kernel ${KERNEL_IMAGE} \
+    -nographic \
+	-s -S
+fi
+else
 sudo ${QEMU} \
     -M virt \
     -m ${RAM_SIZE} \
@@ -28,4 +47,5 @@ sudo ${QEMU} \
     -smp ${CORE_NUM} \
     -kernel ${KERNEL_IMAGE} \
     -nographic 
+fi
 
