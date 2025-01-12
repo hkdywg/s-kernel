@@ -75,7 +75,7 @@ void sk_hw_vector_init(void)
 void sk_hw_interrupt_mask(int vector)
 {
 	sk_uint64_t mask = 1U << (vector % 32U);
-	sk_int32_t  irq = irq - gic_ctl.offset;
+	sk_int32_t  irq = vector - gic_ctl.offset;
 
 	GIC_DIST_ENABLE_CLEAR(gic_ctl.dist_base, irq) = mask;
 }
@@ -88,7 +88,7 @@ void sk_hw_interrupt_mask(int vector)
 void sk_hw_interrupt_umask(int vector)
 {
 	sk_uint64_t mask = 1U << (vector % 32U);
-	sk_int32_t  irq = irq - gic_ctl.offset;
+	sk_int32_t  irq = vector - gic_ctl.offset;
 
 	GIC_DIST_ENABLE_SET(gic_ctl.dist_base, irq) = mask;
 }
@@ -114,7 +114,7 @@ sk_int32_t sk_hw_interrupt_get_irq(void)
 void sk_hw_interrupt_ack(int vector)
 {
 	sk_uint64_t mask = 1U << (vector % 32U);
-	sk_int32_t  irq = irq - gic_ctl.offset;
+	sk_int32_t  irq = vector - gic_ctl.offset;
 
 	GIC_DIST_PENDING_CLEAR(gic_ctl.dist_base, irq) = mask;
 	GIC_CPU_EOI(gic_ctl.cpu_base) = irq;
