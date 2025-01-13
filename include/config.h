@@ -21,4 +21,6 @@
 #define GIC_IRQ_START 				0
 #define GIC_MAX_HANDLERS 			96
 
+#define TICK_PER_SECOND 			100
+
 #endif
