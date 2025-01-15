@@ -1,5 +1,5 @@
 /*
- *  task.c
+ *  thread.c
  *  brief
  *  	thread 
  *  
@@ -18,16 +18,16 @@
 
 
 /*
- * __task_stack_init
+ * __thread_stack_init
  * brief
- * 		this function will initialize task stack
+ * 		this function will initialize thread stack
  * @param: 
- * 		entry: the entry of the task
+ * 		entry: the entry of the thread
  * 		param: parameter of entry
  * 		stack_addr: the begining stack address
  * 		exit: the function will be called when thread exit
  */
-static sk_uint8_t __task_stack_init(void *entry,void *param,
+static sk_uint8_t __thread_stack_init(void *entry,void *param,
 									sk_uint8_t *stack_addr, void *exit) 
 {
 	sk_ubase_t 	*stk; 
@@ -70,48 +70,48 @@ static sk_uint8_t __task_stack_init(void *entry,void *param,
 	*(--stk) = INITIAL_SPSR_EL1;
 	*(--stk) = (sk_ubase_t) entry;		/* exception return address */
 
-	/* return task current stack address */
+	/* return thread current stack address */
 	return (sk_uint8_t *)stk;
 }
 
 /*
- *	sk_current_task
+ *	sk_current_thread
  *	brief
- *		this function will return current task
+ *		this function will return current thread
  *		
  * */
-struct task_struct* sk_current_task(void)
+struct thread_struct* sk_current_thread(void)
 {
-	extern task_struct *sk_current_task;
+	extern thread_struct *sk_current_thread;
 
-	return sk_current_task;
+	return sk_current_thread;
 }
 
-static void __task_exit(void)
+static void __thread_exit(void)
 {
-	struct task_struct *task;
+	struct thread_struct *thread;
 	register sk_base_t level;
 
 	/* get current thread */
-	task = sk_current_task();
+	thread = sk_current_thread();
 
 	/* disable interrupt */
 	level = hw_interrupt_disable();
 
-	/* invoke task cleanup */
-	if(task->cleanup != SK_NULL)
-		task->cleanup(task);
+	/* invoke thread cleanup */
+	if(thread->cleanup != SK_NULL)
+		thread->cleanup(thread);
 
 	/* remove from schedule */
-	sk_schedule_remove_task(task);
+	sk_schedule_remove_thread(thread);
 
-	/* change task state */
-	task->stat = SK_TASK_CLOSE;
+	/* change thread state */
+	thread->stat = SK_thread_CLOSE;
 
 	/* remove it from system tick list */
-	sk_tick_detack(&task->tick);
+	sk_tick_detack(&thread->tick);
 
-	/* switch to next task */
+	/* switch to next thread */
 	sk_schedule();
 
 	/* enable interrupt */
@@ -120,21 +120,21 @@ static void __task_exit(void)
 }
 
 /*
- *	__task_init
+ *	__thread_init
  *	brief
- *		this function will initialize a task
+ *		this function will initialize a thread
  *	param
- *		task: task_struct 
- *		name: task name
- *		entry: function of task
- *		param: parameter of task enter function
- *		stack_start: the start address of task stack
- *		stack_size: the size of task stack
- *		priority: priority of task
- *		tick: the time slice if there are same priority task
+ *		thread: thread_struct 
+ *		name: thread name
+ *		entry: function of thread
+ *		param: parameter of thread enter function
+ *		stack_start: the start address of thread stack
+ *		stack_size: the size of thread stack
+ *		priority: priority of thread
+ *		tick: the time slice if there are same priority thread
  *
  * */
-static sk_err_t __task_init(struct task_struct 	*task,
+static sk_err_t __thread_init(struct thread_struct 	*thread,
 						   const char 			*name,
 						   void 				(*entry)(void *param),
 						   void 				*param,
@@ -144,38 +144,38 @@ static sk_err_t __task_init(struct task_struct 	*task,
 						   sk_uint32_t 			tick)
 {
 	/* init thread list */
-	sk_list_init(&(task->list));
+	sk_list_init(&(thread->list));
 
-	task->entry = (void *)entry;
-	task->pram = param;
+	thread->entry = (void *)entry;
+	thread->pram = param;
 
-	task->stack_addr = stack_start;
-	task->stack_size = stack_size;
+	thread->stack_addr = stack_start;
+	thread->stack_size = stack_size;
 
 	/* init thread stack */
-	task->sp = (void *)sk_hw_stack_init();
+	thread->sp = (void *)sk_hw_stack_init();
 
-	/* init task stack */
-	task->sp = (void *)sk_hw_stack_init(task->entry, task->param,
-										(sk_uint8_t *)((char *)task->stack_addr + task->stack_size - sizeof(sk_ubase_t)),
-										(void *)__task_exit);
+	/* init thread stack */
+	thread->sp = (void *)sk_hw_stack_init(thread->entry, thread->param,
+										(sk_uint8_t *)((char *)thread->stack_addr + thread->stack_size - sizeof(sk_ubase_t)),
+										(void *)__thread_exit);
 
 	/* priority init */
-	task->init_pri = priority;
-	task->current_pri = priority; 
+	thread->init_pri = priority;
+	thread->current_pri = priority; 
 
-	task->stat = SK_TASK_INIT;
-	task->cleanup = SK_NULL;
-	task->user_data = 0;
+	thread->stat = SK_thread_INIT;
+	thread->cleanup = SK_NULL;
+	thread->user_data = 0;
 
-	/* init task timer */
+	/* init thread timer */
 	sk_tick_init();
 
 	return SK_EOK;
 }
 
 
-sk_err_t sk_task_init(struct task_struct 	*task,
+sk_err_t sk_thread_init(struct thread_struct 	*thread,
 					   const char 			*name,
 					   void 				(*entry)(void *param),
 					   void 				*param,
@@ -184,24 +184,24 @@ sk_err_t sk_task_init(struct task_struct 	*task,
 					   sk_uint8_t 			priority,
 					   sk_uint32_t 			tick)
 {
-	return __task_init(task, name ,entry, param, stack_start, stack_size, priority, tick);
+	return __thread_init(thread, name ,entry, param, stack_start, stack_size, priority, tick);
 }
 
-sk_err_t sk_task_resume(struct task_struct *task)
+sk_err_t sk_thread_resume(struct thread_struct *thread)
 {
 	register sk_base_t level;
 
-	if(task->stat != SK_TASK_SUSPEND)
+	if(thread->stat != SK_thread_SUSPEND)
 		return SK_ERROR;
 
 	/* disable interrupt */
 	level = hw_interrupt_disable();
 
 	/* remove from suspend list */
-	sk_list_del(&(task->list));
+	sk_list_del(&(thread->list));
 
 	/* insert to scedule ready list */
-	sk_schedule_insert_task(task);
+	sk_schedule_insert_thread(thread);
 
 	/* enable interrupt */
 	hw_interrupt_enable(level);
@@ -210,12 +210,12 @@ sk_err_t sk_task_resume(struct task_struct *task)
 }
 
 
-sk_err_t sk_task_startup(struct task_struct *task)
+sk_err_t sk_thread_startup(struct thread_struct *thread)
 {
-	/* change task state */
-	task->stat = SK_TASK_SUSPEND;
+	/* change thread state */
+	thread->stat = SK_thread_SUSPEND;
 	/* then resume it */
-	sk_task_resume(task);
+	sk_thread_resume(thread);
 	if(sk_thread_current() != SK_NULL)
 		sk_schedule();			/* do scheduling */
 
