@@ -349,6 +349,70 @@ void *sk_malloc(sk_size_t size)
 }
 
 
+/*
+ *	sk_free
+ *	brief:
+ *		this function will relese the previous allocated memory block by sk_malloc
+ *	param:
+ *		ptr: the address of need to be released
+ */
+void sk_free(void *ptr)
+{
+	struct slab_zone *zone;
+	struct slab_chunk *chunk;
+	struct sys_mem_usage *kup;
+
+	if(ptr == SK_NULL)
+		return;
+
+	kup = btokup((sk_ubase_t)ptr & ~SK_PAGE_MASK);
+	/* release large allocation */
+	if(kup->type == SK_PAGE_TYPE_LARGE) {
+		sk_ubae_t size;
+		/* clear page counter */
+		size = kup->size;
+		kup->size = 0;
+		/* free this page */
+		sk_page_free(ptr, size);
+
+		return;
+	}
+
+	/* slab zone case, find it from zone */
+	zone = (struct slab_zone *)(((sk_ubae_t)ptr & ~ SK_PAGE_MASK) -
+								kup->size * SK_PAGE_SIZE);
+
+	chunk 				= (struct slab_chunk *)ptr;
+	chunk->c_next 		= zone->z_freechunk;
+	zone->z_freechunk 	= chunk;
+
+	if(zone->z_nfree++ == 0) {
+		zone->z_next = sys_zone_array[zone->z_zoneindex];
+		sys_zone_array[zone->z_zoneindex] = zone;
+	}
+
+	/*
+	 * if the zone becomes totally free, and there are other zones we can allocate from,
+	 * move this zone to the free zones list.
+	 */
+	if(zone->z_nfree == zone->z_nmax &&
+	   (zone->z_next || sys_zone_array[z->z_zoneindex] != zone)) {
+		struct slab_zone **pz;
+
+		/* remove zone from zone array list */
+		for(pz = &zone_array[zone->z_zoneindex]; zone != *pz;
+			pz = &(*pz)->z_next);
+
+		*pz = zone->z_next;
+		/* reset zone */
+		zone->z_magic = -1;
+		/* insert to free zone list */
+		zone->z_next = sys_zone_free;
+		sys_zone_free = zone;
+
+		++sys_zone_free_cnt;
+	}
+}
 
 
 
