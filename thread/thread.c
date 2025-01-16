@@ -13,6 +13,7 @@
 #include <skernel.h>
 #include <hw.h>
 #include <klist.h>
+#include <sched.h>
 
 #define INITIAL_SPSR_EL1	(0x04)
 
@@ -82,9 +83,9 @@ static sk_uint8_t __thread_stack_init(void *entry,void *param,
  * */
 struct thread_struct* sk_current_thread(void)
 {
-	extern thread_struct *sk_current_thread;
+	extern struct thread_struct *current_thread;
 
-	return sk_current_thread;
+	return current_thread;
 }
 
 static void __thread_exit(void)
@@ -115,7 +116,7 @@ static void __thread_exit(void)
 	sk_schedule();
 
 	/* enable interrupt */
-	hw_interrupt_enable();
+	hw_interrupt_enable(level);
 
 }
 
@@ -147,7 +148,7 @@ static sk_err_t __thread_init(struct thread_struct 	*thread,
 	sk_list_init(&(thread->list));
 
 	thread->entry = (void *)entry;
-	thread->pram = param;
+	thread->param = param;
 
 	thread->stack_addr = stack_start;
 	thread->stack_size = stack_size;

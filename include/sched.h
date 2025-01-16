@@ -13,6 +13,7 @@
 #define __SCHED_H_
 
 #include <type_def.h>
+#include <tick.h>
 
 #define SK_NAME_MAX 			(32U)
 
@@ -48,7 +49,7 @@ struct thread_struct
 	/* tick */
 	sk_ubase_t 	init_tick;						/* thread's initialized tick */
 	sk_ubase_t 	remain_tick;					/* remaining tick */
-	struct sk_tick	tick;						/* system tick */
+	struct sk_sys_tick	tick;					/* system tick */
 
 	void (*cleanup)(struct thread_struct *thread);	/* cleanup function when thread exit */
 	sk_ubase_t 	user_data; 						/* private user data bind this thread */
