@@ -23,6 +23,7 @@
 #define SK_PAGE_TYPE_SMALL 		(0x01)
 #define SK_PAGE_TYPE_LARGE 		(0x02)
 #define SK_NUM_ZONES 			(72)
+#define SK_ZONE_RELEASE_NUM 	(2)				/* threshold number of zones */
 #define SK_MIN_CHUNK_SIZE 		(8)
 #define SK_MIN_CHUNK_MASK 		(SK_MIN_CHUNK_SIZE - 1)
 
@@ -180,6 +181,14 @@ void *sk_page_alloc(sk_size_t npages)
 	return b;
 }
 
+/*
+ *	sk_system_mem_init
+ *	brief
+ *		init memory of system heap, need be called befor sk_malloc/sk_free
+ *	param
+ *		begin_addr: start address of heap
+ *		end_add: end address of heap
+ */
 sk_err_t sk_system_mem_init(void *begin_addr, void *end_addr)
 {
 	sk_uint32_t limit_size, num_pages;
@@ -443,6 +452,25 @@ void sk_free(void *ptr)
 		sys_zone_free = zone;
 
 		++sys_zone_free_cnt;
+
+		/* release zone to page allocator */
+		if(sys_zone_free_cnt > SK_ZONE_RELEASE_NUM) {
+			sk_base_t i;
+
+			zone  			= sys_zone_free;
+			sys_zone_free 	= zone->z_next;
+			--sys_zone_free;
+
+			/* update zone page usage status */
+			for(i = 0, kup = btokup(zone); i < sys_zone_page_cnt; i++) {
+				kup->type = SK_PAGE_TYPE_FREE;
+				kup->size = 0;
+				kup++;
+			}
+			/* release pages */
+			sk_page_free(zone, sys_zone_size / SK_PAGE_SIZE);
+			return;
+		}
 	}
 }
 

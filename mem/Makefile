@@ -1,1 +1,1 @@
-obj-y := mem.o
+obj-y := slab.o
