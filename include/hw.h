@@ -13,7 +13,7 @@
 #ifndef __HW_H_
 #define __HW_H_
 
-#include <type_def.h>
+#include <base_def.h>
 
 #ifndef __REG32
 #define __REG32(x)							(*((volatile sk_uint32_t *)(x)))

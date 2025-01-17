@@ -13,7 +13,7 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 
-#include "type_def.h"
+#include "base_def.h"
 
 /* dist and cpu definitions */
 #define GIC_DIST_BASE 				0x08000000

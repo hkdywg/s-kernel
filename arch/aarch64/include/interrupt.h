@@ -13,7 +13,7 @@
 #ifndef __INTERRUPT_H_
 #define __INTERRUPT_H_
 
-#include "type_def.h"
+#include "base_def.h"
 
 #define MAX_HANDLERS 				96
 
