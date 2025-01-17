@@ -97,7 +97,7 @@ typedef sk_base_t 					sk_off_t;		/* type for offset */
  *		c: the value to be set
  *		count: the number of bytes to be set
  */
-void *sk_memset(void *s, int c, sk_ubase_t count)
+static inline void *sk_memset(void *s, int c, sk_ubase_t count)
 {
 	char *dst = (char *)s;
 	while(count--)
@@ -116,10 +116,10 @@ void *sk_memset(void *s, int c, sk_ubase_t count)
  * 		count: the number of bytes need to be copy
  * 
  */
-void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
+static inline void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
 {
-	char *d = (char *dst);
-	char *s = (char *s);
+	char *d = (char *)dst;
+	char *s = (char *)s;
 	sk_ubase_t len;
 
 	if(d <= s || d > (s + count)) {
@@ -133,3 +133,4 @@ void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
 }
 
 #endif
+

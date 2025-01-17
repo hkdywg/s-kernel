@@ -89,7 +89,7 @@ typedef struct sk_slist_node sk_slist_t;
  * 	param
  * 		list: list to be initialized
  */
-void sk_list_init(sk_list_t *list)
+static inline void sk_list_init(sk_list_t *list)
 {
 	list->next = list->prev = list;
 }
@@ -101,7 +101,7 @@ void sk_list_init(sk_list_t *list)
  * 	param
  * 		new: new entry to be added
  */
-static void __list_add(sk_list_t *new, sk_list_t *prev,
+static inline void __list_add(sk_list_t *new, sk_list_t *prev,
 					  sk_list_t *next)
 {
 	next->prev = new;
@@ -117,7 +117,7 @@ static void __list_add(sk_list_t *new, sk_list_t *prev,
  * 	param
  * 		new: new entry to be added
  */
-static void __list_del(sk_list_t *prev, sk_list_t *next)
+static void inline __list_del(sk_list_t *prev, sk_list_t *next)
 {
 	next->prev = prev;
 	prev->next = next;
@@ -131,7 +131,7 @@ static void __list_del(sk_list_t *prev, sk_list_t *next)
  * 		new: new entry to be added
  * 		head: list head to be add it after
  */
-void sk_list_add(sk_list_t *new, sk_list_t *head)
+static inline void sk_list_add(sk_list_t *new, sk_list_t *head)
 {
 	__list_add(new, head, head->next);
 }
@@ -144,7 +144,7 @@ void sk_list_add(sk_list_t *new, sk_list_t *head)
  * 		new: new entry to be added
  * 		head: list head to be add it befor
  */
-void sk_list_add_tail(sk_list_t *new, sk_list_t *head)
+static inline void sk_list_add_tail(sk_list_t *new, sk_list_t *head)
 {
 	__list_add(new, head->prev, head);
 }
@@ -156,7 +156,7 @@ void sk_list_add_tail(sk_list_t *new, sk_list_t *head)
  * param
  * 		entry: list node of need to be delete 
  */
-void sk_list_del(sk_list_t *entry)
+static inline void sk_list_del(sk_list_t *entry)
 {
 	__list_del(entry->prev, entry->next);
 }
@@ -168,7 +168,7 @@ void sk_list_del(sk_list_t *entry)
  * param
  * 		head: the list to test
  */
-sk_bool_t sk_list_empty(const sk_list_t *head)
+static inline sk_bool_t sk_list_empty(const sk_list_t *head)
 {
 	return head->next == head;
 }
