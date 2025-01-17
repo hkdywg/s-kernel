@@ -64,7 +64,7 @@ struct slab_zone
 	sk_int32_t z_uindex;			/* current initial allocation index */
 	sk_int32_t z_chunksize;			/* chunk size for validation */
 
-	sk_inr32_t z_zoneindex;			/* zone index */
+	sk_int32_t z_zoneindex;			/* zone index */
 	struct slab_chunk *z_freechunk;	/* free chunk list */
 };
 
@@ -79,8 +79,8 @@ static int sys_zone_size;
 static int sys_zone_limit;
 static int sys_zone_page_cnt;
 
-#define btoup(addr) \
-	(sys_mem_usage[((sk_ubase_t)(addr) - sys_mem_start) >> SK_PAGE_SHIFT])
+#define btokup(addr) \
+	(&sys_mem_usage[((sk_ubase_t)(addr) - sys_mem_start) >> SK_PAGE_SHIFT])
 
 /*
  * sk_page_init
@@ -143,6 +143,13 @@ void sk_page_free(void *addr, sk_size_t num_pages)
 	*prev 	= n;
 }
 
+/*
+ * sk_page_alloc
+ * brief
+ * 		allocate pages from sys_page_list(init by the address of heap memory)
+ * param
+ * 		npages: the number of need be allocated pages
+ */
 void *sk_page_alloc(sk_size_t npages)
 {
 	struct sk_page_head *b, *n;
@@ -152,6 +159,10 @@ void *sk_page_alloc(sk_size_t npages)
 		return SK_NULL;
 
 	for(prev = &sys_page_list; (b = *prev) != SK_NULL; prev = &(b->next)) {
+		/* 
+		 * if the number of pages in curent page_list > npages,
+		 * splite it
+		 */
 		if(b->page > npages) {
 			n		= b + npages;
 			n->next = b->next;
@@ -159,7 +170,7 @@ void *sk_page_alloc(sk_size_t npages)
 			*prev 	= n;
 			break;
 		}
-
+		/* the system pages is exhaust */
 		if(b->page == npages) {
 			*prev = b->next;
 			break;
@@ -177,7 +188,7 @@ sk_err_t sk_system_mem_init(void *begin_addr, void *end_addr)
 	sys_mem_start = SK_ALIGN((sk_ubase_t)begin_addr, SK_PAGE_SIZE);
 	sys_mem_end   = SK_ALIGN((sk_ubase_t)end_addr, SK_PAGE_SIZE);
 
-	if(mem_start > mem_end)
+	if(sys_mem_start > sys_mem_end)
 		return SK_EINVAL;
 
 	limit_size = sys_mem_end - sys_mem_start;
@@ -202,9 +213,29 @@ sk_err_t sk_system_mem_init(void *begin_addr, void *end_addr)
 	limit_size = SK_ALIGN(limit_size, SK_PAGE_SIZE);
 	sys_mem_usage = sk_page_alloc(limit_size / SK_PAGE_SIZE);
 
-	return EK_EOK;
+	return SK_EOK;
 }
 
+/*
+ *	Alloc size 		Chunking 		Number of zones			
+ *	0-127 			8				16
+ *	128-255 		16				8
+ *	256-511 		32 				8
+ *	512-1023 		64 				8
+ *	1024-2047 		128 			8
+ *	2048-4095 		256 			8
+ *	4096-8191 		512 			8
+ *	8192-16383 		1024 			8
+ *
+ */
+
+/*
+ * zone_index
+ * brief
+ * 		find the zone index by bytes
+ * param:
+ * 		bytes: need to allocated bytes(the bytes maybe modify)
+ */
 int zone_index(sk_size_t *bytes)
 {
 	/* unsigned for shift opt */
@@ -235,6 +266,7 @@ int zone_index(sk_size_t *bytes)
 	} else if(n < 16384) {
 		*bytes = n = SK_ALIGN(n, 1024);
 		return (n / 1024 + 55);
+	}
 }
 
 /*
@@ -256,9 +288,9 @@ void *sk_malloc(sk_size_t size)
 
 	/* handle large allocations directly */
 	if(size >= sys_zone_limit) {
-		size = SL_ALIGN(size, SK_PAGE_SIZE);
+		size = SK_ALIGN(size, SK_PAGE_SIZE);
 
-		chunk = sk_page_alloc(size >> SK_PAGE_SIZE);
+		chunk = sk_page_alloc(size >> SK_PAGE_SHIFT);
 		if(chunk == SK_NULL)
 			return SK_NULL;
 
@@ -277,30 +309,30 @@ void *sk_malloc(sk_size_t size)
 	 */
 	index = zone_index(&size);
 	if((zone = sys_zone_array[index]) != SK_NULL) {
-		/* remove it from the sys_zone_array[] when it becom full */
+		/* remove it from the sys_zone_array[] when it become full */
 		if(--zone->z_nfree == 0) {
 			sys_zone_array[index] = zone->z_next;
-			zone->next = SK_NULL;
+			zone->z_next = SK_NULL;
 		}
 		/*
 		 * no chunks are available but nfree said we har some memory, so it must be
 		 * available in the never-befor-used-memory area governed by uindex.
 		 */
 		if(zone->z_uindex + 1 != zone->z_nmax) {
-			zone->z_uindex = zone->z_unidex + 1;
+			zone->z_uindex = zone->z_uindex + 1;
 			chunk = (struct slab_chunk *)(zone->z_baseptr + zone->z_uindex * size);
 		} else {
 			/* find on free chunk list */
 			chunk = zone->z_freechunk;
 
 			/* remove this chunk from list */
-			zone->z_freechunk = zone->freechunk->c_next;
+			zone->z_freechunk = zone->z_freechunk->c_next;
 		}
 		return chunk;
 	}
 
 	/*
-	 * if all zones zre exhausted we need to allocated a new zone for this index
+	 * if all zones are exhausted we need to allocated a new zone for this index
 	 */
 	{
 		sk_int32_t off;
@@ -310,11 +342,11 @@ void *sk_malloc(sk_size_t size)
 			-- sys_zone_free_cnt;
 		} else {
 			/* allocate a zone from page */
-			zone = sk_page_alloc(sys_zone_size / SK_PAGE_SHIFT);
+			zone = sk_page_alloc(sys_zone_size / SK_PAGE_SIZE);
 			if(zone == SK_NULL)
 				return SK_NULL;
-			/* set message usage */
-			for(off = 0; kup = btokup(zone); off < sys_zone_page_cnt; off++) {
+			/* set zone page usage status */
+			for(off = 0, kup = btokup(zone); off < sys_zone_page_cnt; off++) {
 				kup->type = SK_PAGE_TYPE_SMALL;
 				kup->size = off;
 				
@@ -338,7 +370,7 @@ void *sk_malloc(sk_size_t size)
 		zone->z_uindex 		= 0;
 		zone->z_chunksize 	= size;
 
-		chunk = (struct slab_chun *)(zone->z_baseptr + zone->z_uindex * size);
+		chunk = (struct slab_chunk *)(zone->z_baseptr + zone->z_uindex * size);
 
 		/* link to zone array */
 		zone->z_next = sys_zone_array[index];
@@ -360,7 +392,7 @@ void sk_free(void *ptr)
 {
 	struct slab_zone *zone;
 	struct slab_chunk *chunk;
-	struct sys_mem_usage *kup;
+	struct sk_mem_usage *kup;
 
 	if(ptr == SK_NULL)
 		return;
@@ -368,7 +400,7 @@ void sk_free(void *ptr)
 	kup = btokup((sk_ubase_t)ptr & ~SK_PAGE_MASK);
 	/* release large allocation */
 	if(kup->type == SK_PAGE_TYPE_LARGE) {
-		sk_ubae_t size;
+		sk_ubase_t size;
 		/* clear page counter */
 		size = kup->size;
 		kup->size = 0;
@@ -378,8 +410,8 @@ void sk_free(void *ptr)
 		return;
 	}
 
-	/* slab zone case, find it from zone */
-	zone = (struct slab_zone *)(((sk_ubae_t)ptr & ~ SK_PAGE_MASK) -
+	/* slab zone case, find zone by ptr */
+	zone = (struct slab_zone *)(((sk_ubase_t)ptr & ~ SK_PAGE_MASK) -
 								kup->size * SK_PAGE_SIZE);
 
 	chunk 				= (struct slab_chunk *)ptr;
@@ -396,11 +428,11 @@ void sk_free(void *ptr)
 	 * move this zone to the free zones list.
 	 */
 	if(zone->z_nfree == zone->z_nmax &&
-	   (zone->z_next || sys_zone_array[z->z_zoneindex] != zone)) {
+	   (zone->z_next || sys_zone_array[zone->z_zoneindex] != zone)) {
 		struct slab_zone **pz;
 
 		/* remove zone from zone array list */
-		for(pz = &zone_array[zone->z_zoneindex]; zone != *pz;
+		for(pz = &sys_zone_array[zone->z_zoneindex]; zone != *pz;
 			pz = &(*pz)->z_next);
 
 		*pz = zone->z_next;
