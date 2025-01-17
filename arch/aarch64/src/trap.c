@@ -12,7 +12,7 @@
  * */
 #include <interrupt.h>
 #include <armv8.h>
-#include <type_def.h>
+#include <base_def.h>
 #include <hw.h>
 
 /*

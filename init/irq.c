@@ -10,7 +10,7 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  * */
-#include <type_def.h>
+#include <base_def.h>
 #include <hw.h>
 
 volatile sk_uint8_t interrupt_nest = 0;
