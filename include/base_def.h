@@ -1,5 +1,5 @@
 /*                                                                                                                                                                     
- *  type_def.h
+ *  base_def.h
  *
  *  brif
  *      base data struct definition
@@ -10,8 +10,8 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  * */
-#ifndef __TYPE_DEF_H_
-#define __TYPE_DEF_H_
+#ifndef __BASE_DEF_H_
+#define __BASE_DEF_H_
 
 /* s-kernel version information */
 #define SK_VERSION			1L		/* major version number */
@@ -65,11 +65,71 @@ typedef sk_base_t 					sk_off_t;		/* type for offset */
 #define SK_EIO	 					-7				/* IO error */
 #define SK_EINVAL 	 				-8				/* Invalid argument */
 
+
+#define SK_NAME_MAX 				(16U)
+
 /*
  *	@def SK_NULL
  *	Similar as the c NULL in C libary
  */
 #define SK_NULL						(0)
 
+/*
+ * return the most contifuous size aligned.
+ * sample
+ * 		SK_ALIGN(22, 4) will return 24
+ */
+#define SK_ALIGN(size, align)	(((size) + (align) - 1) & ~((align) -1 ))
+
+/*
+ * return the most contifuous size aligned.
+ * sample
+ * 		SK_ALIGN(22, 4) will return 24
+ */
+#define SK_ALIGN_DOWN(size, align)	((size) & ~((align) -1 ))
+
+/*
+ * sk_memset
+ * brief
+ * 		set the content of memory to specified value
+ * param
+ * 		s: the address of source memory
+ *		c: the value to be set
+ *		count: the number of bytes to be set
+ */
+void *sk_memset(void *s, int c, sk_ubase_t count)
+{
+	char *dst = (char *)s;
+	while(count--)
+		*dst++ = c;
+
+	return s;
+}
+
+/*
+ * sk_memcpy
+ * brief
+ * 		this function will copy memory content from source address to dst address
+ * param
+ * 		dst: the address of destribution memory
+ * 		src: the address of source memory
+ * 		count: the number of bytes need to be copy
+ * 
+ */
+void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
+{
+	char *d = (char *dst);
+	char *s = (char *s);
+	sk_ubase_t len;
+
+	if(d <= s || d > (s + count)) {
+		while(count--)
+			*d++ = *s++;
+	} else {
+		for(len = count; len > 0; len--)
+			d[len - 1] = s[len - 1];
+	}
+	return dst;
+}
 
 #endif
