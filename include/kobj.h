@@ -53,4 +53,10 @@ struct sk_object_info
 	sk_size_t 			obj_size;			/* object size */
 };
 
+struct sk_object *sk_object_alloc(enum sk_object_type type, const char *name);
+void sk_object_delete(struct sk_object *obj)
+void sk_object_init(struct sk_object *obj,
+					enum sk_object_type type,
+					const char *name);
 #endif
+

@@ -85,13 +85,13 @@ struct sk_object *sk_object_alloc(enum sk_object_type type, const char *name)
 }
 
 /*
- * sk_object_detach
+ * sk_object_delete
  * brief
- * 		detach a static object from object system
+ * 		delete a object from object system
  * param
- * 		obj: the object of need to be detached
+ * 		obj: the object of need to be delete
  */
-void sk_object_detach(struct sk_object *obj)
+void sk_object_delete(struct sk_object *obj)
 {
 	sk_base_t level;
 
@@ -107,5 +107,48 @@ void sk_object_detach(struct sk_object *obj)
 	/* enable interrupt */
 	hw_interrupt_enable(level);
 
+	/* free the memory of object */
+	sk_free(obj);
 }
+
+/*
+ * sk_object_init
+ * brief
+ * 		initialize a object and add it to object system management
+ * param
+ * 
+ */
+void sk_object_init(struct sk_object *obj,
+					enum sk_object_type type,
+					const char *name)
+{
+	struct sk_object_info *info;
+	struct sk_list_node *node;
+
+	/* get object information */
+	info = sk_object_get_info(type);
+
+	/* try to find object */
+	for(node = info->object_list.next; node != &(info->object_list); 
+		node = node->next) {
+		struct sk_object *obj_tmp;
+
+		obj_tmp = sk_list_entry(node, struct sk_object, list);
+		if(obj_tmp == obj)
+			return;
+	}
+	/* initialize object's parameters */
+	obj->type = type;
+	sk_memcpy(obj->name, name, SK_NAME_MAX);
+	/* insert object into information object list */
+	sk_list_add(&(info->obj_list), &(obj->list));
+
+	return;
+}
+
+
+
+
+
+
 
