@@ -110,7 +110,7 @@ static void  __timer_init(struct sk_sys_timer *timer,
 	timer->init_tick = tick;
 
 	/* initialize timer list */
-	sk_list_init(&(timer->row));
+	sk_list_init(&(timer->list));
 }
 
 /*
@@ -118,7 +118,7 @@ static void  __timer_init(struct sk_sys_timer *timer,
  */
 void __timer_remove(struct sk_sys_timer *timer)
 {
-	sk_list_del(&timer->row);
+	sk_list_del(&timer->list);
 }
 
 /*
@@ -141,7 +141,7 @@ struct sk_sys_timer* sk_timer_create(const char *name,
 	struct sk_sys_timer *timer;
 
 	/* allocate a object */
-	timer = (struct sk_object *)sk_object_alloc(SK_OBJECT_TIMER, name);
+	timer = (struct sk_sys_timer *)sk_object_alloc(SK_OBJECT_TIMER, name);
 	if(timer == SK_NULL)
 		return SK_NULL;
 
@@ -200,10 +200,52 @@ sk_err_t sk_timer_start(struct sk_sys_timer *timer)
 	timer->timeout_tick = sk_tick_get() + timer->init_tick;
 	/* change status of timer */
 	timer->parent.flag |= SK_TIMER_FLAG_ACTIVE; 
+
+	/* add timer list to __timer_list */
+	sk_list_add(&__timer_list, &(timer->list));
 	/* enable interrupt */
 	hw_interrupt_enable(level);
 
 	return SK_EOK;
+}
+
+/*
+ *	sk_timer_check
+ *	brief
+ *		this function will check timer list, if a timeout event happens,
+ *		the corresponding timeout function will be invoked
+ */
+void sk_timer_check(void)
+{
+	sk_tick_t current_tick;
+	struct sk_sys_timer *timer;
+	sk_list_t *list_1;
+	sk_base_t level;
+
+	current_tick = sk_tick_get();
+
+	/* disable interrupt */
+	level = hw_interrupt_disable();
+
+	sk_list_for_each(list_1, &__timer_list) {
+		/* fix up timer pointer */	
+		timer = sk_list_entry(list_1, struct sk_sys_timer, list);
+
+		/* call timeout function */
+		timer->timeout_func(timer->param);
+		current_tick = sk_tick_get();
+
+		if(current_tick >= timer->timeout_tick) {
+			/* check timer flag */
+			if(timer->parent.flag & SK_TIMER_FLAG_PERIODIC) {
+				/* start it*/
+				sk_timer_start(timer);
+			}
+		}
+	}
+
+	/* enable interrupt */
+	hw_interrupt_enable(level);
 }
 
 
