@@ -20,8 +20,7 @@
  * 		return the the member address of ptr
  */
 #define sk_container_of(ptr, type, member) \
-	((type *)((char *)ptr - (unsigned long)(&((type *)0))->member))
-
+	((type *)((char *)ptr - (unsigned long)(&((type *)0)->member)))
 
 /*
  *		----------------------------------------------------- 
