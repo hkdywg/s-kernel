@@ -1,9 +1,13 @@
-# Kevin 说明
-		更新日期: 2024-12-25
+<p align="center">
+<img src="./doc/logo.png">
+</p>
+
+# s-kernel 说明
+		更新日期: 2025-01-21
 
 ## 简介
 
-**kevin** 是一个小型的操作系统内核，用于学习操作系统内核原理。
+**s-kernel** 是一个小型的操作系统内核，用于学习操作系统内核原理。
 
 ----------------------------------------------------------------------
 
@@ -16,5 +20,24 @@
 
 ```
 sudo apt update
-sudo apt install qemu qemu-user qemu-user-static
+sudo apt install qemu-system-aarch64
+```
+
+- 下载编译工具链
+
+```
+cd tools
+python3 ./get_toolchain.py aarch64
+```
+
+- 编译s-kernel
+
+```
+make 
+```
+
+- 运行s-kernel
+
+```
+./run_os.sh
 ```
