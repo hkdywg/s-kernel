@@ -17,7 +17,6 @@
 
 #define INITIAL_SPSR_EL1	(0x04)
 
-
 /*
  * __thread_stack_init
  * brief
@@ -28,7 +27,7 @@
  * 		stack_addr: the begining stack address
  * 		exit: the function will be called when thread exit
  */
-static sk_uint8_t __thread_stack_init(void *entry,void *param,
+static sk_uint8_t *__thread_stack_init(void *entry,void *param,
 									sk_uint8_t *stack_addr, void *exit) 
 {
 	sk_ubase_t 	*stk; 
@@ -81,16 +80,16 @@ static sk_uint8_t __thread_stack_init(void *entry,void *param,
  *		this function will return current thread
  *		
  * */
-struct thread_struct* sk_current_thread(void)
+struct sk_thread* sk_current_thread(void)
 {
-	extern struct thread_struct *current_thread;
+	extern struct sk_thread *current_thread;
 
 	return current_thread;
 }
 
 static void __thread_exit(void)
 {
-	struct thread_struct *thread;
+	struct sk_thread *thread;
 	register sk_base_t level;
 
 	/* get current thread */
@@ -107,10 +106,10 @@ static void __thread_exit(void)
 	sk_schedule_remove_thread(thread);
 
 	/* change thread state */
-	thread->stat = SK_thread_CLOSE;
+	thread->stat = SK_THREAD_CLOSE;
 
 	/* remove it from system tick list */
-	sk_tick_detack(&thread->tick);
+	sk_timer_delete(&thread->tick);
 
 	/* switch to next thread */
 	sk_schedule();
@@ -125,7 +124,7 @@ static void __thread_exit(void)
  *	brief
  *		this function will initialize a thread
  *	param
- *		thread: thread_struct 
+ *		thread: sk_thread 
  *		name: thread name
  *		entry: function of thread
  *		param: parameter of thread enter function
@@ -135,7 +134,7 @@ static void __thread_exit(void)
  *		tick: the time slice if there are same priority thread
  *
  * */
-static sk_err_t __thread_init(struct thread_struct 	*thread,
+static sk_err_t __thread_init(struct sk_thread 	*thread,
 						   const char 			*name,
 						   void 				(*entry)(void *param),
 						   void 				*param,
@@ -145,7 +144,7 @@ static sk_err_t __thread_init(struct thread_struct 	*thread,
 						   sk_uint32_t 			tick)
 {
 	/* init thread list */
-	sk_list_init(&(thread->list));
+	sk_list_init(&(thread->tlist));
 
 	thread->entry = (void *)entry;
 	thread->param = param;
@@ -154,10 +153,7 @@ static sk_err_t __thread_init(struct thread_struct 	*thread,
 	thread->stack_size = stack_size;
 
 	/* init thread stack */
-	thread->sp = (void *)sk_hw_stack_init();
-
-	/* init thread stack */
-	thread->sp = (void *)sk_hw_stack_init(thread->entry, thread->param,
+	thread->sp = (void *)__thread_stack_init(thread->entry, thread->param,
 										(sk_uint8_t *)((char *)thread->stack_addr + thread->stack_size - sizeof(sk_ubase_t)),
 										(void *)__thread_exit);
 
@@ -165,34 +161,60 @@ static sk_err_t __thread_init(struct thread_struct 	*thread,
 	thread->init_pri = priority;
 	thread->current_pri = priority; 
 
-	thread->stat = SK_thread_INIT;
+	thread->stat = SK_THREAD_INIT;
 	thread->cleanup = SK_NULL;
 	thread->user_data = 0;
-
-	/* init thread timer */
-	sk_tick_init();
+		
+	/* insert to schedule ready list */
+	sk_schedule_insert_thread(thread);
 
 	return SK_EOK;
 }
 
 
-sk_err_t sk_thread_init(struct thread_struct 	*thread,
-					   const char 			*name,
-					   void 				(*entry)(void *param),
-					   void 				*param,
-					   void 				*stack_start,
-					   sk_uint32_t 			stack_size,
-					   sk_uint8_t 			priority,
-					   sk_uint32_t 			tick)
+/*
+ * sk_thread_create
+ * brief
+ * 		create a thread object and allocate thread stack memory	
+ * param
+ * 		name: the name of thread
+ * 		entry: the entry function of thread
+ * 		param: parameter of entry function
+ * 		stack_size: the stack size of thread
+ * 		priority: the priority of thread
+ * 		tick: the time slice if there are same priority thread
+ */
+struct sk_thread *sk_thread_create(const char 			*name,
+							   void 				(*entry)(void *param),
+							   void 				*param,
+							   sk_uint32_t 			stack_size,
+							   sk_uint8_t 			priority,
+							   sk_uint32_t 			tick)
 {
-	return __thread_init(thread, name ,entry, param, stack_start, stack_size, priority, tick);
+	struct sk_thread *thread; 
+	void *stack_start;
+
+	thread = (struct sk_thread *)sk_object_alloc(SK_OBJECT_THREAD, name);
+	if(thread == SK_NULL)
+		return SK_NULL;
+
+	stack_start = (void *)sk_malloc(stack_size);
+	if(stack_start == SK_NULL) {
+		/* delete allocated object */
+		sk_object_delete((struct sk_object *)thread);
+		return SK_NULL;
+	}
+
+	__thread_init(thread, name ,entry, param, stack_start, stack_size, priority, tick);
+
+	return thread;
 }
 
-sk_err_t sk_thread_resume(struct thread_struct *thread)
+sk_err_t sk_thread_resume(struct sk_thread *thread)
 {
 	register sk_base_t level;
 
-	if(thread->stat != SK_thread_SUSPEND)
+	if(thread->stat != SK_THREAD_SUSPEND)
 		return SK_ERROR;
 
 	/* disable interrupt */
@@ -211,15 +233,18 @@ sk_err_t sk_thread_resume(struct thread_struct *thread)
 }
 
 
-sk_err_t sk_thread_startup(struct thread_struct *thread)
+sk_err_t sk_thread_startup(struct sk_thread *thread)
 {
 	/* change thread state */
-	thread->stat = SK_thread_SUSPEND;
+	thread->stat = SK_THREAD_SUSPEND;
+	/* set priority attribute */
+	thread->number_mask = 1 << thread->current_pri;
 	/* then resume it */
 	sk_thread_resume(thread);
-	if(sk_thread_current() != SK_NULL)
+	if(sk_current_thread() != SK_NULL)
 		sk_schedule();			/* do scheduling */
 
 	return SK_EOK;
 }
+
 
