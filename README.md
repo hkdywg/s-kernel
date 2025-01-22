@@ -28,6 +28,7 @@ sudo apt install qemu-system-aarch64
 ```
 cd tools
 python3 ./get_toolchain.py aarch64
+source ./env_config.sh
 ```
 
 - 编译s-kernel
