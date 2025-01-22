@@ -129,7 +129,7 @@ void sk_object_init(struct sk_object *obj,
 	info = sk_object_get_info(type);
 
 	/* try to find object */
-	for(node = info->object_list.next; node != &(info->object_list); 
+	for(node = info->obj_list.next; node != &(info->obj_list); 
 		node = node->next) {
 		struct sk_object *obj_tmp;
 
