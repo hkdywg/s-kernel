@@ -13,6 +13,7 @@
 #include <kobj.h>
 #include <timer.h>
 #include <interrupt.h>
+#include <hw.h>
 
 /* init the sk_object double list */
 #define _OBJ_CONTAINER_LIST_INIT(c)	\
