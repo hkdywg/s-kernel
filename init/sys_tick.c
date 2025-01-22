@@ -169,7 +169,7 @@ sk_err_t sk_timer_delete(struct sk_sys_timer *timer)
 	/* enable interrupt */
 	hw_interrupt_enable(level);
 
-	sk_object_detach(&(timer->parent));
+	sk_object_delete(&(timer->parent));
 
 	return SK_EOK;
 }

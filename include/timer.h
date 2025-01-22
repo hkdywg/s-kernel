@@ -36,4 +36,13 @@ struct sk_sys_timer
 	sk_tick_t	timeout_tick;				/* timeout tick */ 	
 };
 
+sk_err_t sk_timer_delete(struct sk_sys_timer *timer);
+sk_err_t sk_timer_start(struct sk_sys_timer *timer);
+void sk_system_timer_init(void);
+struct sk_sys_timer* sk_timer_create(const char *name,
+									  void (timeout)(void *param),
+									  void *param,
+									  sk_tick_t tick,
+									  sk_uint8_t flag);
+
 #endif
