@@ -1,1 +1,1 @@
-obj-y := thread.o
+obj-y := thread.o schedule.o
