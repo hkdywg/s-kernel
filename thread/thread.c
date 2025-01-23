@@ -146,9 +146,14 @@ static sk_err_t __thread_init(struct sk_thread 	*thread,
 	/* init thread list */
 	sk_list_init(&(thread->tlist));
 
+	/* init thread name */
+	sk_memcpy(thread->name, name, SK_NAME_MAX);
+
+	/* init thread entry and param */
 	thread->entry = (void *)entry;
 	thread->param = param;
 
+	/* thread stack address and size config */
 	thread->stack_addr = stack_start;
 	thread->stack_size = stack_size;
 
@@ -164,7 +169,11 @@ static sk_err_t __thread_init(struct sk_thread 	*thread,
 	/* set priority attribute */
 	thread->number_mask = 1 << thread->current_pri;
 
+	/* init thread state and tick */
+	thread->init_tick = tick;
+	thread->remain_tick = tick;
 	thread->stat = SK_THREAD_INIT;
+	/* set cleanup function and userdata */
 	thread->cleanup = SK_NULL;
 	thread->user_data = 0;
 		
