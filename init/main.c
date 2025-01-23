@@ -12,7 +12,8 @@
 #include <interrupt.h>
 #include <skernel.h>
 #include <hw.h>
-#include <skernel.h>
+#include <timer.h>
+#include <sched.h>
 
 extern unsigned char __bss_start;
 extern unsigned char __bss_end;
@@ -42,11 +43,14 @@ int skernel_startup(void)
 	/* hardware related init, must be first called in skernel_startup*/
 	sk_hw_board_init();
 
-	sk_uint8_t *ptr_1 = SK_NULL;
-	ptr_1 = (sk_uint8_t *)sk_malloc(15);
-	*ptr_1 = 12;
-	sk_uint8_t test_var = 0xa5;
-	while(1);
+	/* system timer init */
+	sk_system_timer_init();
+	/* scheduler system init */
+	sk_system_scheduler_init();
+	/* idle thread init */
+	sk_thread_idle_init();
+	/* system scheduler start */
+	sk_system_scheduler_start();
 
 	return 0;
 }
