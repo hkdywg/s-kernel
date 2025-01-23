@@ -14,6 +14,7 @@
 #include <timer.h>
 #include <interrupt.h>
 #include <hw.h>
+#include <sched.h>
 
 /* init the sk_object double list */
 #define _OBJ_CONTAINER_LIST_INIT(c)	\
@@ -21,6 +22,7 @@
 
 static struct sk_object_info _object_container[] = {
 	{SK_OBJECT_TIMER, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_TIMER), sizeof(struct sk_sys_timer)},
+	{SK_OBJECT_THREAD, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_THREAD), sizeof(struct sk_thread)},
 };
 
 
