@@ -67,6 +67,7 @@ typedef sk_base_t 					sk_off_t;		/* type for offset */
 
 
 #define SK_NAME_MAX 				(16U)
+#define SK_ALIGN_SIZE 				(4U)
 
 /*
  *	@def SK_NULL
@@ -131,6 +132,27 @@ static inline void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
 			d[len - 1] = s[len - 1];
 	}
 	return dst;
+}
+
+/*
+ * sk_strcmy
+ * brief
+ * 		compare two strings
+ * param
+ * 		st_1: string to be compared
+ * 		st_2: string to be compared
+ */
+static sk_int8_t sk_strcmp(const char *st_1, const char *st_2, sk_ubase_t count)
+{
+	sk_int8_t ret = 0;
+
+	while(count) {
+		if((ret = *st_1++ - *st_2) != 0 || !*st_2++)
+			break;
+		count--;
+	}
+
+	return ret;
 }
 
                                                                                                                                                                       
