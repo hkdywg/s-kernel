@@ -13,6 +13,7 @@
 #include <config.h>
 #include <hw.h>
 #include <timer.h>
+#include <sched.h>
 
 #define HW_TIMER_VECTOR_NUM		27
 
@@ -29,7 +30,32 @@ static sk_list_t __timer_list;
  */
 void sk_tick_increase(void)
 {
+	struct sk_thread *thread;
+	sk_base_t level;
+
+	/* disable interrupt */
+	level = hw_interrupt_disable();
+
+	/* increase the global tick */
 	++sk_tick;
+
+	/* check time slice */
+	thread = sk_current_thread();
+	/* update current threac remain tick */
+	--thread->remain_tick;
+	/* if current thread tick is over, schedule */
+	if(thread->remain_tick == 0) {
+		/* change to initialized tick */
+		thread->remain_tick = thread->init_tick;
+		thread->stat |= SK_THREAD_YIELD;
+		/* enable interrupt */
+		hw_interrupt_enable(level);
+		/* schedule next ready thread */
+		sk_schedule();
+	} else {
+		/* enable interrupt */
+		hw_interrupt_enable(level);
+	}
 }
 
 /*
