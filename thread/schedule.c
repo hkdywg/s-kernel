@@ -89,6 +89,8 @@ void sk_schedule_insert_thread(struct sk_thread *thread)
 	thread->stat = SK_THREAD_READY;
 	/* insert it to list head tail */
 	sk_list_add_tail(&(sk_thread_prio_table[thread->current_pri]), &(thread->tlist));
+	/* set priority mask */
+	sk_thread_ready_prio_group |= thread->number_mask;
 
 	/* enable interrupt */
 	hw_interrupt_enable(level);
@@ -109,6 +111,9 @@ void sk_system_scheduler_init(void)
 	for(index = 0; index < SK_THREAD_PRIORITY_MAX; index++) {
 		sk_list_init(&sk_thread_prio_table[index]);
 	}
+
+	/* initialize ready priority group */
+	sk_thread_ready_prio_group = 0;
 
 	/* enable interrupt */
 	hw_interrupt_enable(level);
@@ -141,6 +146,7 @@ void sk_schedule(void)
 			current_thread = to_thread;
 			/* insert thread to ready list */
 			sk_schedule_insert_thread(from_thread);
+			current_thread->stat &= ~SK_THREAD_YIELD;
 			/* remove thread from ready list */
 			sk_schedule_remove_thread(to_thread);
 			/* change thread status */
