@@ -24,6 +24,8 @@
 #define SK_THREAD_RUNNING 		(0x04)			/* running status */
 #define SK_THREAD_CLOSE 		(0x08)			/* close status */
 
+#define SK_THREAD_YIELD 		(0x10)
+
 /* thread priority */
 #define SK_THREAD_PRIORITY_MAX 	(32)			/* support max priority */
 
@@ -73,6 +75,7 @@ struct sk_thread *sk_thread_create(const char 			*name,
 							   sk_uint32_t 			stack_size,
 							   sk_uint8_t 			priority,
 							   sk_uint32_t 			tick);
+void sk_thread_idle_init(void);
 
 /*
  * scheduler interfaces

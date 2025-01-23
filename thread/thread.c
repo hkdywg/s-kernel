@@ -161,6 +161,9 @@ static sk_err_t __thread_init(struct sk_thread 	*thread,
 	thread->init_pri = priority;
 	thread->current_pri = priority; 
 
+	/* set priority attribute */
+	thread->number_mask = 1 << thread->current_pri;
+
 	thread->stat = SK_THREAD_INIT;
 	thread->cleanup = SK_NULL;
 	thread->user_data = 0;
@@ -221,7 +224,7 @@ sk_err_t sk_thread_resume(struct sk_thread *thread)
 	level = hw_interrupt_disable();
 
 	/* remove from suspend list */
-	sk_list_del(&(thread->list));
+	sk_list_del(&(thread->tlist));
 
 	/* insert to scedule ready list */
 	sk_schedule_insert_thread(thread);
@@ -237,14 +240,31 @@ sk_err_t sk_thread_startup(struct sk_thread *thread)
 {
 	/* change thread state */
 	thread->stat = SK_THREAD_SUSPEND;
-	/* set priority attribute */
-	thread->number_mask = 1 << thread->current_pri;
 	/* then resume it */
-	sk_thread_resume(thread);
+	//sk_thread_resume(thread);
 	if(sk_current_thread() != SK_NULL)
 		sk_schedule();			/* do scheduling */
 
 	return SK_EOK;
 }
 
+static void sk_idle_entry(void *param) 
+{
+	while(1) {
+		asm volatile ("wfi");
+	}
+}
+
+void sk_thread_idle_init(void) 
+{
+	char idle_thread_name[SK_NAME_MAX] = "idle_thread";
+
+	struct sk_thread *thread = sk_thread_create(idle_thread_name,
+												sk_idle_entry,
+												SK_NULL,
+												32,
+												SK_THREAD_PRIORITY_MAX - 1,
+												100);
+	sk_thread_startup(thread);
+}
 
