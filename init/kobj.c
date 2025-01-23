@@ -15,6 +15,7 @@
 #include <interrupt.h>
 #include <hw.h>
 #include <sched.h>
+#include <device.h>
 
 /* init the sk_object double list */
 #define _OBJ_CONTAINER_LIST_INIT(c)	\
@@ -23,8 +24,8 @@
 static struct sk_object_info _object_container[] = {
 	{SK_OBJECT_TIMER, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_TIMER), sizeof(struct sk_sys_timer)},
 	{SK_OBJECT_THREAD, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_THREAD), sizeof(struct sk_thread)},
+	{SK_OBJECT_DEVICE, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_DEVICE), sizeof(struct sk_device)},
 };
-
 
 /*
  * sk_object_get_info
@@ -39,6 +40,35 @@ struct sk_object_info *sk_object_get_info(enum sk_object_type type)
 	for(index = 0; index < SK_OBJECT_UNKNOWN; index++) {
 		if(_object_container[index].type == type)
 			return &_object_container[index];
+	}
+
+	return SK_NULL;
+}
+
+/*
+ * sk_object_find
+ * brief
+ * 		find specified name object from object container
+ * param
+ * 		name: the name of object
+ * 		type: the type of object
+ */
+struct sk_object *sk_object_find(const char *name, enum sk_object_type type)
+{
+	struct sk_object *obj;
+	struct sk_object_info  *info;
+	struct sk_list_node *node;
+
+	/* get object information */
+	info = sk_object_get_info(type);
+
+	if(name == SK_NULL || info == SK_NULL)
+		return SK_NULL;
+
+	sk_list_for_each(node, &(info->obj_list)) {
+		obj = sk_list_entry(node, struct sk_object, list);
+		if(sk_strcmp(obj->name, name, SK_NAME_MAX) == 0)
+			return obj;
 	}
 
 	return SK_NULL;
