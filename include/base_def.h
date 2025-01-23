@@ -120,7 +120,7 @@ static inline void *sk_memset(void *s, int c, sk_ubase_t count)
 static inline void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
 {
 	char *d = (char *)dst;
-	char *s = (char *)s;
+	char *s = (char *)src;
 	sk_ubase_t len;
 
 	if(d <= s || d > (s + count)) {
