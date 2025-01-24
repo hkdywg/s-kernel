@@ -1,5 +1,5 @@
 /*
- *  main.c
+ *  startup.c
  *  brief
  *  	kernel entrance
  *  
@@ -21,6 +21,9 @@ extern unsigned char __bss_end;
 #define SK_HEAP_BEGIN    (void*)&__bss_end
 #define SK_HEAP_END      (void*)(SK_HEAP_BEGIN + 1 * 1024 * 1024)
 
+#define SK_MAIN_THREAD_STATCK_SIZE 		(2048)
+#define SK_MAIN_THREAD_PRIORITY 		(SK_THREAD_PRIORITY_MAX/3)
+
 /*
  * Init the hardware related 
  *
@@ -38,6 +41,26 @@ void sk_hw_board_init(void)
 	sk_system_mem_init(SK_HEAP_BEGIN, SK_HEAP_END);
 }
 
+/*
+ * sk_application_init
+ * brief
+ * 		create and start the user main thread, but this thread will not run
+ * 		until the scheduler start
+ */
+void sk_application_init(void)
+{
+	extern void main(void *); 
+	char user_thread_name[SK_NAME_MAX] = "main";
+
+	struct sk_thread *thread = sk_thread_create(user_thread_name,
+												main,
+												SK_NULL,
+												SK_MAIN_THREAD_STATCK_SIZE,
+												SK_MAIN_THREAD_PRIORITY,
+												20);
+	sk_thread_startup(thread);
+}
+
 int skernel_startup(void)
 {
 	/* hardware related init, must be first called in skernel_startup*/
@@ -47,6 +70,8 @@ int skernel_startup(void)
 	sk_system_timer_init();
 	/* scheduler system init */
 	sk_system_scheduler_init();
+	/* user main thread init */
+	sk_application_init();
 	/* idle thread init */
 	sk_thread_idle_init();
 	/* system scheduler start */
