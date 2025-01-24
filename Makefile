@@ -122,20 +122,22 @@ export SUB_TARGET
 _all:all
 
 init-y 		:= init/ arch/
-core-y 		:= task/ mem/ ipc/
+core-y 		:= thread/ mem/ ipc/
 fs-y 		:= fs/
 driver-y 	:= driver/
 common-y 	:= common/
+user-y 		:= user/
 
-build-dirs := $(patsubst %/,%,$(filter %/, $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y)))
+build-dirs := $(patsubst %/,%,$(filter %/, $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y) $(user-y)))
 
 init-y 		:= $(patsubst %/, %/built-in.a, $(init-y))
 core-y 		:= $(patsubst %/, %/built-in.a, $(core-y))
 fs-y 		:= $(patsubst %/, %/built-in.a, $(fs-y))
 driver-y 	:= $(patsubst %/, %/built-in.a, $(driver-y))
 common-y 	:= $(patsubst %/, %/built-in.a, $(common-y))
+user-y 		:= $(patsubst %/, %/built-in.a, $(user-y))
 
-export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y)
+export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y) $(user-y)
 
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=dir
 # Usage:
