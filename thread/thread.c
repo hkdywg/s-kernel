@@ -15,9 +15,12 @@
 #include <klist.h>
 #include <sched.h>
 
-#define INITIAL_SPSR_EL1	(0x04)
+#define INITIAL_SPSR_EL1			(0x04)
+#define SK_IDLE_THREAD_STACK_SIZE 	(128)
+#define SK_IDLE_THREAD_TICK 		(32)
 
 static sk_tick_t idle_tick = 10;
+
 
 /*
  * __thread_stack_init
@@ -262,8 +265,11 @@ sk_err_t sk_thread_startup(struct sk_thread *thread)
 static void sk_idle_entry(void *param) 
 {
 	while(1) {
-		asm volatile ("wfi");
 		idle_tick++;
+		__asm__ volatile ("msr CNTV_CTL_EL0, %0"::"r"(5));
+		/* put cpu into sleep mode and wait for wake-up,
+		 * can be woken up by interrupt */
+		asm volatile ("wfi");
 	}
 }
 
@@ -279,9 +285,9 @@ void sk_thread_idle_init(void)
 	struct sk_thread *thread = sk_thread_create(idle_thread_name,
 												sk_idle_entry,
 												SK_NULL,
-												32,
+												SK_IDLE_THREAD_STACK_SIZE,
 												SK_THREAD_PRIORITY_MAX - 1,
-												100);
+												SK_IDLE_THREAD_TICK);
 	sk_thread_startup(thread);
 }
 
