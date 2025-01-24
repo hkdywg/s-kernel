@@ -11,7 +11,7 @@
  * */
 #include <skernel.h>
 
-int main(void *arg)
+void main(void *arg)
 {
 	sk_ubase_t cnt = 0;
 	float cpu_usage = 0.0;

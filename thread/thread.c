@@ -17,6 +17,8 @@
 
 #define INITIAL_SPSR_EL1	(0x04)
 
+static sk_tick_t idle_tick = 10;
+
 /*
  * __thread_stack_init
  * brief
@@ -261,7 +263,13 @@ static void sk_idle_entry(void *param)
 {
 	while(1) {
 		asm volatile ("wfi");
+		idle_tick++;
 	}
+}
+
+sk_tick_t sk_idle_tick_get()
+{
+	return idle_tick;
 }
 
 void sk_thread_idle_init(void) 
