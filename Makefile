@@ -85,7 +85,9 @@ CHECKFLAGS 	:= -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 CFLAGS_KERNEL 	=
 AFLAGS_KERNEL 	=
 
-KERNEL_INCLUDE 	:= -I$(srctree)/include \
+KERNEL_INCLUDE 	:= -I$(srctree)/include/config \
+					-I$(srctree)/include/kernel \
+					-I$(srctree)/include/driver \
 					-I$(srctree)/arch/aarch64/include
 
 NOSTDINC_FLAGS = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
