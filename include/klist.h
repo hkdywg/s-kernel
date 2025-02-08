@@ -143,7 +143,7 @@ static inline void sk_list_add(sk_list_t *new, sk_list_t *head)
  * 		new: new entry to be added
  * 		head: list head to be add it befor
  */
-static inline void sk_list_add_tail(sk_list_t *new, sk_list_t *head)
+static inline void sk_list_add_tail(sk_list_t *head, sk_list_t *new)
 {
 	__list_add(new, head->prev, head);
 }
