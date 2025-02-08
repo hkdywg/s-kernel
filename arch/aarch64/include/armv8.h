@@ -58,6 +58,7 @@ struct sk_hw_exp_stack {
 #define PSTATE_EL3 			((unsigned long long)0x0c)
 
 void set_current_vbar();
+sk_ubase_t hw_get_current_el();
 
 #endif
 

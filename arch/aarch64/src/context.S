@@ -11,6 +11,29 @@
  *  published by the Free Software Foundation.
  * */
 
+.globl hw_get_current_el
+hw_get_current_el:                                                                                                                                                                                  
+    mrs     x0, CurrentEL
+    cmp     x0, 0xc
+    b.eq    3f
+    cmp     x0, 0x8
+    b.eq    2f
+    cmp     x0, 0x4
+    b.eq    1f
+
+    ldr     x0, =0
+    b       0f
+3:
+    ldr     x0, =3
+    b       0f
+2:
+    ldr     x0, =2
+    b       0f
+1:
+    ldr     x0, =1
+    b       0f
+0:
+    ret
 
 .macro save_context
 	/* Switch to use the EL0 stack pointer */
@@ -124,6 +147,7 @@ hw_interrupt_disable:
 
 /*
  * interrupt_enable(level)
+ * daif register bit6/7 control irq/fiq mask
  */
 .global hw_interrupt_enable
 hw_interrupt_enable:
