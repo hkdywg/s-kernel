@@ -31,6 +31,8 @@ extern unsigned char __bss_end;
  */
 void sk_hw_board_init(void)
 {
+    hw_interrupt_disable();
+
 	/* Initialize hardware interrupt */
 	sk_hw_interrupt_init();
 
@@ -74,6 +76,7 @@ int skernel_startup(void)
 	sk_application_init();
 	/* idle thread init */
 	sk_thread_idle_init();
+
 	/* system scheduler start */
 	sk_system_scheduler_start();
 

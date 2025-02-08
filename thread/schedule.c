@@ -153,8 +153,12 @@ void sk_schedule(void)
 			to_thread->stat = SK_THREAD_RUNNING;
 
 			/* thread context switch */
-			hw_context_switch((sk_ubase_t)&from_thread->sp,
-								 (sk_ubase_t)&to_thread->sp);
+			if(sk_is_in_interrupt())
+				hw_context_switch_interrupt((sk_ubase_t)&from_thread->sp,
+									 (sk_ubase_t)&to_thread->sp);
+			else
+				hw_context_switch((sk_ubase_t)&from_thread->sp,
+									 (sk_ubase_t)&to_thread->sp);
 		}
 	}
 

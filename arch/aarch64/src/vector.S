@@ -54,23 +54,24 @@ vector_fiq:
 	.align 8
 vector_irq:
 	save_context
-	stp 	x0, x1, [sp, #-0x10]!
+	stp 	x0, x1, [sp, #-0x10]!	/* push operation, save x0, x1 to  sp - 0x10 address */
 
 	bl 		sk_interrupt_enter
 	bl 		sk_hw_trap_irq
 	bl 		sk_interrupt_leave
 
-	ldp 	x0, x1, [sp], #0x10
+	ldp 	x0, x1, [sp], #0x10		/* pop  operation, resore x0, x1 from sp - 0x10, and sp address + 0x10 */
+
 	adr 	x1, thread_switch_interrupt_flag
 	ldr 	x2, [x1]
-	cmp 	x2, #1
+	cmp 	x2, #1					/* determine whether the thread_switch_interrupt_flag is 1, if no goto vector_irq_exit */
 	b.ne 	vector_irq_exit
 
-	mov 	x2, #0 		/* clear flag */
-	str 	x2, [x1]
+	mov 	x2, #0 				
+	str 	x2, [x1]				/* set thread_switch_interrupt_flag to 0 */
 
 	adr 	x3, interrupt_from_thread
-	ldr 	x4, [x3]
+	ldr 	x4, [x3]	/* get the from thread sp */	
 	str 	x0, [x4]	/* store sp in preempted task's TCB */
 						/* assume x0 stores the stack pinter SP of the current thread */
 

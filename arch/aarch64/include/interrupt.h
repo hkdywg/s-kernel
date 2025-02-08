@@ -28,5 +28,6 @@ void sk_hw_interrupt_ack(int vector);
 sk_int32_t sk_hw_interrupt_get_irq(void);
 sk_isr_handler_t sk_hw_interrupt_install(int vector, sk_isr_handler_t handler, void *param);
 void sk_hw_interrupt_init(void);
+sk_bool_t sk_is_in_interrupt();
 
 #endif

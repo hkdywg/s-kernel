@@ -66,3 +66,8 @@ sk_uint8_t sk_interrupt_get_nest(void)
 	return ret;
 }
 
+sk_bool_t sk_is_in_interrupt()
+{
+	return (interrupt_nest != 0);
+}
+

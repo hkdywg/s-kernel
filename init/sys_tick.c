@@ -22,6 +22,7 @@ static sk_uint64_t timer_step;
 static volatile sk_tick_t sk_tick = 0;
 
 static sk_list_t __timer_list;
+sk_bool_t need_schedule = SK_FALSE;
 
 /*
  * This function will be called by timer isr
@@ -51,6 +52,7 @@ void sk_tick_increase(void)
 		/* enable interrupt */
 		hw_interrupt_enable(level);
 		/* schedule next ready thread */
+		need_schedule = SK_TRUE;
 		sk_schedule();
 	} else {
 		/* enable interrupt */
@@ -102,10 +104,6 @@ int sk_hw_timer_init(void)
 	__asm__ volatile ("msr CNTV_CVAL_EL0, %0"::"r"(timer_val));
 	__asm__ volatile ("msr CNTV_CTL_EL0, %0"::"r"(1));
 
-    sk_base_t level;                                                                                                                                                   
-    
-    //level = hw_interrupt_disable();
-    //hw_interrupt_enable(level);
 	return 0;
 }
 

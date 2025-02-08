@@ -266,7 +266,6 @@ static void sk_idle_entry(void *param)
 {
 	while(1) {
 		idle_tick++;
-		__asm__ volatile ("msr CNTV_CTL_EL0, %0"::"r"(5));
 		/* put cpu into sleep mode and wait for wake-up,
 		 * can be woken up by interrupt */
 		asm volatile ("wfi");

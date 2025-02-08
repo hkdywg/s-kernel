@@ -59,6 +59,7 @@ void hw_interrupt_enable(sk_base_t level);
  * context interfaces
  */
 void hw_context_switch(sk_ubase_t from, sk_ubase_t to);
+void hw_context_switch_interrupt(sk_ubase_t from, sk_ubase_t to);
 void hw_context_switch_to(sk_ubase_t to);
 
 #endif

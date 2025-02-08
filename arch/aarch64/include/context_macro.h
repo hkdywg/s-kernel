@@ -14,6 +14,7 @@
 #ifndef __CONTEXT_MACRO_H_
 #define __CONTEXT_MACRO_H_
 
+
 .macro save_context
 	/* Switch to use the EL0 stack pointer */
 	msr 	spsel, #0
@@ -36,9 +37,9 @@
 	stp 	x28, x29, [sp, #-0x10]!
 	stp 	x30, xzr, [sp, #-0x10]!
 
-	mrs 	x3, spsr_el1
-	mrs 	x2, elr_el1
-	stp 	x2, x3, [sp, #-0x10]!
+	mrs 	x3, spsr_el1			/* save PSTATE (progream  status  register) */
+	mrs 	x2, elr_el1				/* save PC */
+	stp 	x2, x3, [sp, #-0x10]!	/* save PSTATE and PC to sp stack */
 	mov 	x0, sp 					/* move sp into x0 for saving */
 
 	/* Switch to use the ELx stack pointer */
@@ -69,7 +70,7 @@
 	stp 	x30, xzr, [sp, #-0x10]!
 
 	mrs 	x3, spsr_el1
-	mov 	x2, x30
+	mov 	x2, x30					/* save LR/x30(link register, this register store function return address ) to x2 */
 	stp 	x2, x3, [sp, #-0x10]!
 	mov 	x0, sp 					/* move sp into x0 for saving */
 
@@ -85,8 +86,8 @@
 	mov 	sp, x0
 	ldp 	x2, x3, [sp], #0x10 	/* SPSR and ELR */
 
-	msr 	spsr_el1, x3
-	msr 	elr_el1, x2
+	msr 	spsr_el1, x3			/* set PSTATE (program status register) register */
+	msr 	elr_el1, x2				/* set pc register */
 
 	ldp 	x30, xzr, [sp], #0x10
 	ldp 	x28, x29, [sp], #0x10
