@@ -1,1 +1,1 @@
-obj-y := common.o
+obj-y := ring_buffer.o

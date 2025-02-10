@@ -11,8 +11,9 @@
  *  published by the Free Software Foundation.
  */
 #include <ring_buffer.h>
+#include <skernel.h>
 
-enum sk_ring_buffer_status sk_get_ring_buffer_status(struct sk_ring_buffer *rb)
+enum sk_ring_buffer_state sk_get_ring_buffer_status(struct sk_ring_buffer *rb)
 {
 	if(rb->read_index == rb->write_index)
 	{
@@ -154,7 +155,7 @@ sk_size_t  sk_ring_buffer_put(struct sk_ring_buffer *rb,
 	side_len = rb->buffer_size - rb->write_index;
 
 	if(side_len > put_len) {
-		sk_memcpy(&rb->buffer[rb->write_index], buf, put_len);	
+		sk_memcpy((void *)&rb->buffer[rb->write_index], (const void *)buf, put_len);	
 		rb->write_index += put_len;
 		return put_len;
 	}
@@ -196,19 +197,19 @@ sk_size_t  sk_ring_buffer_get(struct sk_ring_buffer *rb,
 
 	side_len = rb->buffer_size - rb->read_index;
 	if(side_len > get_len) {
-		sk_memcpy(buf, &rb->buffer[rb->read_index], get_len);
+		sk_memcpy((void *)buf, (const void *)&rb->buffer[rb->read_index], get_len);
 		rb->read_index += get_len;
 		return get_len;
 	}
 
-	sk_memcpy(&buf[0], &rb->buffer[rb->read_index], side_len);
-	sk_memcpy(&buf[side_len], &rb->buffer[0], get_len - side_len);
+	sk_memcpy((void *)&buf[0], (const void  *)&rb->buffer[rb->read_index], side_len);
+	sk_memcpy((void *)&buf[side_len], (const void  *)&rb->buffer[0], get_len - side_len);
 
 	/* need to use other side of the mirror */
 	rb->read_mirror = ~rb->read_mirror;
 	rb->read_index = get_len - side_len;
 
-	return put_len;
+	return get_len;
 }
 
 /*
@@ -299,7 +300,7 @@ sk_size_t sk_ring_buffer_put_force(struct sk_ring_buffer *rb,
  */
 sk_size_t sk_ring_buffer_putchar_force(struct sk_ring_buffer *rb, const sk_uint8_t data)
 {
-	enum sk_ring_buffer_status state = sk_get_ring_buffer_status(rb);
+	enum sk_ring_buffer_state state = sk_get_ring_buffer_status(rb);
 	rb->buffer[rb->write_index] = data;
 
 	if(rb->write_index + 1 == rb->buffer_size) {
