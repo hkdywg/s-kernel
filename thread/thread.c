@@ -227,6 +227,47 @@ struct sk_thread *sk_thread_create(const char 			*name,
 	return thread;
 }
 
+/*
+ * sk_thread_suspend
+ * brief
+ * 		suspend the specified thread and change it to suspend state
+ * param
+ * 		thread: the thread to be suspended
+ */
+sk_err_t sk_thead_suspend(struct sk_thread *thread)
+{
+	sk_base_t stat;
+	sk_base_t level;
+
+	/* ony thread is ready or running, can be suspend */
+	if((thread->stat !=  SK_THREAD_READY) && (thread->stat != SK_THREAD_RUNNING)) {
+		return SK_ERROR;
+	}
+
+	/* disable interrupt */
+	level = hw_interrupt_disable();
+	if(thread->stat == SK_THREAD_RUNNING) {
+		/* not support suspend */
+		if(thread == sk_current_thread())
+			return SK_ERROR;
+	}
+	/* change thread state */
+	sk_schedule_remove_thread(thread);
+	thread->stat = SK_THREAD_SUSPEND;
+
+	/* enable interrupt */
+	hw_interrupt_enable(level);
+
+	return SK_EOK;
+}
+
+/*
+ * sk_thread_resume
+ * brief
+ * 		resume a thread and put it to system ready queue
+ * param
+ * 		thread: the pointer of thread to be resumed
+ */
 sk_err_t sk_thread_resume(struct sk_thread *thread)
 {
 	register sk_base_t level;
