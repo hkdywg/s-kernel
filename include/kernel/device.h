@@ -77,11 +77,30 @@ struct sk_device
 	sk_uint8_t 			ref_cnt; 		/* reference count */
 	sk_uint8_t 			device_id; 		/* device id number */
 
+	/* device call back */
+	sk_err_t (*rx_indicate)(struct sk_device *dev, sk_size_t size);
+	sk_err_t (*tx_complete)(struct sk_device *dev, void *buf);
+
 	const struct sk_device_ops *ops;	/* device operation function */
 	void 				*user_data;		/* user private data */
 };
 
-
+/*
+ * device operation interfaces
+ */
+struct sk_device *sk_device_create(enum sk_device_type type, 
+								   sk_base_t attach_size);
+void sk_device_destroy(struct sk_device *dev);
+sk_err_t sk_device_init(struct sk_device *dev);
+sk_err_t sk_device_open(struct sk_device *dev, sk_uint16_t flag);
+sk_err_t sk_device_close(struct sk_device *dev);
+sk_size_t sk_device_read(struct sk_device *dev, sk_size_t pos,
+						 void *buf, sk_size_t size);
+sk_size_t sk_device_write(struct sk_device *dev, sk_size_t pos,
+						  const void *buf, sk_size_t size);
+sk_err_t sk_device_register(struct sk_device *dev,  const char *name,
+							sk_uint16_t flag);
+sk_err_t sk_device_unregister(struct sk_device *dev);
 #endif
 
 
