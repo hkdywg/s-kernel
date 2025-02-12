@@ -1,1 +1,1 @@
-obj-y := driver_demo.o
+obj-y := serial/
