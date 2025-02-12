@@ -37,4 +37,26 @@ enum sk_ring_buffer_state
 	SK_RING_BUFFER_HALFFULL,
 };
 
+/*
+ *  ring buffer operation interfaces
+ */
+sk_size_t sk_ring_buffer_data_len(struct sk_ring_buffer *rb);
+sk_size_t sk_ring_buffer_space_len(struct sk_ring_buffer *rb);
+void sk_ring_buffer_init(struct sk_ring_buffer *rb,
+						 sk_uint8_t *buf,
+						 sk_uint16_t size);
+struct sk_ring_buffer *sk_ring_buffer_create(sk_uint16_t size);
+void sk_ring_buffer_destroy(struct sk_ring_buffer *rb);
+sk_size_t  sk_ring_buffer_put(struct sk_ring_buffer *rb,
+							  const sk_uint8_t *buf,
+							  sk_uint16_t len);
+sk_size_t  sk_ring_buffer_get(struct sk_ring_buffer *rb,
+							  const sk_uint8_t *buf,
+							  sk_uint16_t len);
+sk_size_t sk_ring_buffer_putchar(struct sk_ring_buffer *rb, const sk_uint8_t data);
+sk_size_t sk_ring_buffer_getchar(struct  sk_ring_buffer *rb, sk_uint8_t *data);
+sk_size_t sk_ring_buffer_put_force(struct sk_ring_buffer *rb,
+								  const sk_uint8_t *buf,
+								  sk_uint16_t len);
+sk_size_t sk_ring_buffer_putchar_force(struct sk_ring_buffer *rb, const sk_uint8_t data);
 #endif
