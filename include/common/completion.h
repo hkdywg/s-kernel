@@ -14,6 +14,7 @@
 #define __COMPLETION_H_
 
 #include <base_def.h>
+#include <klist.h>
 
 /*
  * completion
