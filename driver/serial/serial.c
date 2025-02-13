@@ -148,7 +148,7 @@ sk_err_t sk_serial_close(struct sk_device *dev)
 	return SK_EOK;
 }
 
-sk_err_t sk_serial_read(struct sk_device *dev, sk_size_t pos, void *buf, sk_size_t size)
+sk_size_t sk_serial_read(struct sk_device *dev, sk_size_t pos, void *buf, sk_size_t size)
 {
 	return SK_EOK;
 }
@@ -231,4 +231,34 @@ sk_err_t sk_hw_serial_register(struct sk_serial_device  *serial,
 	ret = sk_device_register(device, name, flag);
 
 	return ret;
+}
+
+void sk_hw_serial_isr(struct sk_serial_device *serial, int event)
+{
+	switch(event)
+	{
+		case SK_SERIAL_EVENT_RX_IND:
+		case SK_SERIAL_EVENT_RX_DMADONE:
+		{
+			sk_size_t rx_length = 0;
+			struct  sk_serial_rx_fifo *rx_fifo;
+			rx_fifo = (struct sk_serial_rx_fifo *)serial->serial_rx;
+			
+			/* get the length of the data from ring buffer */
+			rx_length = sk_ring_buffer_data_len(&(rx_fifo->rb));
+			if(rx_length == 0)
+				break;
+			/* trigger the receiving completion callback */
+			if(serial->parent.rx_indicate != SK_NULL)
+				serial->parent.rx_indicate(&(serial->parent), rx_length);
+
+			break;
+		}
+		case SK_SERIAL_EVENT_TX_DONE:
+		{
+			struct  sk_serial_tx_fifo *tx_fifo;
+			tx_fifo = (struct sk_serial_tx_fifo *)serial->serial_tx;
+			break;
+		}
+	}
 }

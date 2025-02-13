@@ -16,7 +16,9 @@
 #include <base_def.h>
 #include <completion.h>
 #include <ring_buffer.h>
+#include <device.h>
 
+/* serial boud rate define */
 #define BAUD_RATE_2400 					2400
 #define BAUD_RATE_9600 					9600
 #define BAUD_RATE_19200 				19200
@@ -24,12 +26,14 @@
 #define BAUD_RATE_115200 				115200
 #define BAUD_RATE_921600 				921600
 
+/* data_bit/stop/parity define */
 #define DATA_BITS_8						8
 #define STOP_BITS_1 					0
 #define PARITY_NONE 					0
 #define PARITY_ODD 						1
 #define PARITY_EVEN 					2
 
+/* lsb or msb first define */
 #define BIT_ORDER_LSB	 				0
 #define BIT_ORDER_MSB 					1
 
@@ -43,6 +47,14 @@
 #define SK_SERIAL_RX_NON_BLOCK 			0x200
 #define SK_SERIAL_TX_BLOCK 				0x400
 #define SK_SERIAL_TX_NON_BLOCK 			0x800
+
+
+/* serial event define */
+#define SK_SERIAL_EVENT_RX_IND 			0x01 		/* rx indication */
+#define SK_SERIAL_EVENT_TX_DONE 		0x02 		/* tx complete */
+#define SK_SERIAL_EVENT_RX_DMADONE 		0x03 		/* rx dma transfer done */
+#define SK_SERIAL_EVENT_TX_DMADONE 		0x04 		/* tx dma transfer done */
+#define SK_SERIAL_EVENT_RX_TIMEOUT 		0x05 		/* rx timeout */
 
 /* default confnig for serial_configure structure */
 #define SK_DEFAULT_SERIAL_CONFIG \
@@ -128,5 +140,12 @@ struct sk_serial_ops
 	sk_size_t (*transmit)(struct sk_serial_device *serial, sk_uint8_t *buf, sk_size_t size);
 };
 
+
+/* serial operation interface  */
+sk_err_t sk_hw_serial_register(struct sk_serial_device  *serial,
+							   const char *name, sk_uint32_t flag, void *data);
+void sk_hw_serial_isr(struct sk_serial_device *serial, int event);
+struct sk_device *sk_console_set_device(const char *name);
+void sk_kprintf(char *buf);
 #endif
 
