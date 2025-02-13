@@ -1,1 +1,1 @@
-obj-y := serial.o
+obj-y := serial.o console.o
