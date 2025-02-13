@@ -89,6 +89,7 @@ KERNEL_INCLUDE 	:= -I$(srctree)/include/config \
 					-I$(srctree)/include/kernel \
 					-I$(srctree)/include/driver \
 					-I$(srctree)/include/common \
+					-I$(srctree)/bsp/include \
 					-I$(srctree)/arch/aarch64/include
 
 NOSTDINC_FLAGS = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
@@ -130,8 +131,9 @@ fs-y 		:= fs/
 driver-y 	:= driver/
 common-y 	:= common/
 user-y 		:= user/
+bsp-y 		:= bsp/
 
-build-dirs := $(patsubst %/,%,$(filter %/, $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y) $(user-y)))
+build-dirs := $(patsubst %/,%,$(filter %/, $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y) $(user-y) $(bsp-y)))
 
 init-y 		:= $(patsubst %/, %/built-in.a, $(init-y))
 core-y 		:= $(patsubst %/, %/built-in.a, $(core-y))
@@ -139,8 +141,9 @@ fs-y 		:= $(patsubst %/, %/built-in.a, $(fs-y))
 driver-y 	:= $(patsubst %/, %/built-in.a, $(driver-y))
 common-y 	:= $(patsubst %/, %/built-in.a, $(common-y))
 user-y 		:= $(patsubst %/, %/built-in.a, $(user-y))
+bsp-y 		:= $(patsubst %/, %/built-in.a, $(bsp-y))
 
-export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y) $(user-y)
+export KBUILD_KERNEL_OBJS := $(init-y) $(core-y) $(fs-y) $(driver-y) $(common-y) $(user-y) $(bsp-y)
 
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=dir
 # Usage:
