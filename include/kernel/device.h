@@ -88,6 +88,7 @@ struct sk_device
 /*
  * device operation interfaces
  */
+struct sk_device *sk_device_find(const char *name);
 struct sk_device *sk_device_create(enum sk_device_type type, 
 								   sk_base_t attach_size);
 void sk_device_destroy(struct sk_device *dev);

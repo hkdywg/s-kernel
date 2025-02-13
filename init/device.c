@@ -15,7 +15,9 @@
 #include <skernel.h>
 
 /*
- *
+ * sk_device_find
+ * brief
+ * 		find and return the device by specified name
  */
 struct sk_device *sk_device_find(const char *name)
 {
