@@ -22,9 +22,14 @@
 	{&(_object_container[c].obj_list), &(_object_container[c].obj_list)}
 
 static struct sk_object_info _object_container[] = {
-	{SK_OBJECT_TIMER, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_TIMER), sizeof(struct sk_sys_timer)},
-	{SK_OBJECT_THREAD, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_THREAD), sizeof(struct sk_thread)},
-	{SK_OBJECT_DEVICE, _OBJ_CONTAINER_LIST_INIT(SK_OBJECT_DEVICE), sizeof(struct sk_device)},
+	{SK_OBJECT_THREAD, 		_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_THREAD), sizeof(struct sk_thread)},
+	{SK_OBJECT_SEMAPHORE, 	_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_SEMAPHORE), 0},		/* TDO */
+	{SK_OBJECT_MUTEX, 		_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_MUTEX), 0},		/* TDO */
+	{SK_OBJECT_EVENT, 		_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_EVENT), 0},		/* TDO */
+	{SK_OBJECT_MAILBOX, 	_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_MAILBOX), 0},		/* TDO */
+	{SK_OBJECT_MSQUE, 		_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_MSQUE), 0},		/* TDO */
+	{SK_OBJECT_DEVICE, 		_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_DEVICE), sizeof(struct sk_device)},
+	{SK_OBJECT_TIMER, 		_OBJ_CONTAINER_LIST_INIT(SK_OBJECT_TIMER), sizeof(struct sk_sys_timer)},
 };
 
 /*

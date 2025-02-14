@@ -130,7 +130,7 @@ static void inline __list_del(sk_list_t *prev, sk_list_t *next)
  * 		new: new entry to be added
  * 		head: list head to be add it after
  */
-static inline void sk_list_add(sk_list_t *new, sk_list_t *head)
+static inline void sk_list_add(sk_list_t *head, sk_list_t *new)
 {
 	__list_add(new, head, head->next);
 }
