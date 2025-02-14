@@ -85,8 +85,8 @@ void sk_kprintf(const char *fmt, ...)
 #else
 void sk_kprintf(char *buf)
 {
-	if(!_console_device)
-		sk_device_write(_console_device, 0, buf, sizeof(buf));
+	if(_console_device)
+		sk_device_write(_console_device, 0, buf, 21);
 }
 #endif
 

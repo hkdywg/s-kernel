@@ -102,7 +102,8 @@ static sk_err_t sk_serial_tx_enable(struct sk_device *dev)
 		return SK_EOK;
 	}
 
-	if(serial->parent.flag & SK_SERIAL_TX_NON_BLOCK) {
+	//if(serial->parent.flag & SK_SERIAL_TX_NON_BLOCK) {
+	if(1) {
 		/* allocate fifo memory */
 		tx_fifo = (struct sk_serial_tx_fifo *)sk_malloc(sizeof(struct sk_serial_tx_fifo) + serial->config.tx_buf_size);
 		//SK_ASSERT(tx_fifo != SK_NULL);
@@ -177,9 +178,13 @@ sk_size_t sk_serial_write(struct sk_device *dev, sk_size_t pos, const void  *buf
 		/* get the linear length  buffer from ring buffer */
 		tx_fifo->put_size = sk_serial_get_linear_buf(&(tx_fifo->rb), &put_ptr);
 		/* call the transmit interface for transmission */
+#if 1
 		serial->ops->transmit(serial,
 							  put_ptr,
 							  tx_fifo->put_size);
+#else
+		serial->ops->putc(serial, test_char);
+#endif
 
 		return length;
 	}

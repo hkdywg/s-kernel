@@ -51,6 +51,16 @@ static int uart_putc(struct sk_serial_device *serial, char c)
 	return 1;
 }
 
+static  sk_size_t uart_transmit(struct sk_serial_device *serial, sk_uint8_t *buf, sk_size_t size)
+{
+	sk_size_t index = 0;
+	while(size--) {
+		uart_putc(serial, buf[index++]);
+	}
+
+	return 0;
+}
+
 static sk_err_t uart_configure(struct sk_serial_device *serial, struct sk_serial_configure *cfg)
 {
 	return SK_EOK;
@@ -73,6 +83,7 @@ static const struct sk_serial_ops __uart_ops = {
 	uart_control,
 	uart_putc,
 	uart_getc,
+	uart_transmit,
 };
 
 static struct sk_uart_device __uart_device = {
