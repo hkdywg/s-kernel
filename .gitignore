@@ -96,7 +96,6 @@ modules.order
 #
 # Generated include files
 #
-/include/config/
 /include/generated/
 /include/ksym/
 /arch/*/include/generated/
