@@ -14,6 +14,7 @@
 #include <hw.h>
 #include <timer.h>
 #include <sched.h>
+#include <board.h>
 
 extern unsigned char __bss_start;
 extern unsigned char __bss_end;
@@ -68,6 +69,7 @@ int skernel_startup(void)
 	/* hardware related init, must be first called in skernel_startup*/
 	sk_hw_board_init();
 
+	sk_hw_board_drv_init();
 	/* system timer init */
 	sk_system_timer_init();
 	/* scheduler system init */
