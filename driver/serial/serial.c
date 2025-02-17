@@ -49,6 +49,21 @@ static sk_size_t sk_serial_get_linear_buf(struct sk_ring_buffer *rb, sk_uint8_t 
 	return rb->buffer_size - rb->read_index;
 }
 
+static sk_size_t sk_serial_get_ringbuf(struct sk_ring_buffer *rb, sk_uint8_t *ptr)
+{
+	sk_size_t  size, len;
+
+	/* whether has enough data */
+	size = sk_ring_buffer_data_len(rb);
+
+	if(size == 0)
+		return 0;
+
+	len = sk_ring_buffer_get(rb, ptr, size);
+
+	return len;
+}
+
 /*
  * sk_serial_init
  * brief
@@ -168,7 +183,8 @@ sk_size_t sk_serial_write(struct sk_device *dev, sk_size_t pos, const void  *buf
 		return __serial_poll_tx(dev, pos, buf, size);
 	}
 
-	if(tx_fifo->activated == SK_FALSE) {
+	//if(tx_fifo->activated == SK_FALSE) {
+	if(1) {
 		/* set activate to true, and start copy data to ring buffer */
 		tx_fifo->activated = SK_TRUE;
 		/* copy data to ring buffer */
@@ -176,11 +192,13 @@ sk_size_t sk_serial_write(struct sk_device *dev, sk_size_t pos, const void  *buf
 
 		sk_uint8_t *put_ptr = SK_NULL;
 		/* get the linear length  buffer from ring buffer */
-		tx_fifo->put_size = sk_serial_get_linear_buf(&(tx_fifo->rb), &put_ptr);
+		//tx_fifo->put_size = sk_serial_get_linear_buf(&(tx_fifo->rb), &put_ptr);
+		sk_uint8_t send_data[64];
+		tx_fifo->put_size = sk_serial_get_ringbuf(&(tx_fifo->rb), send_data);
 		/* call the transmit interface for transmission */
 #if 1
 		serial->ops->transmit(serial,
-							  put_ptr,
+							  send_data,
 							  tx_fifo->put_size);
 #else
 		serial->ops->putc(serial, test_char);

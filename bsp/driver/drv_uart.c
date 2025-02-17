@@ -63,6 +63,13 @@ static  sk_size_t uart_transmit(struct sk_serial_device *serial, sk_uint8_t *buf
 
 static sk_err_t uart_configure(struct sk_serial_device *serial, struct sk_serial_configure *cfg)
 {
+	sk_uint32_t val;
+	struct sk_uart_device *uart = (struct sk_uart_device *)serial->parent.user_data;  
+	/* enable rx irq */
+    val = readl((volatile void *)(uart->hw_base + 0x38));
+    val |= 0x10;
+    writel((volatile void *)(uart->hw_base + 0x38), val);
+
 	return SK_EOK;
 }
 

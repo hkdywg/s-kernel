@@ -146,6 +146,7 @@ sk_err_t sk_hw_serial_register(struct sk_serial_device  *serial,
 							   const char *name, sk_uint32_t flag, void *data);
 void sk_hw_serial_isr(struct sk_serial_device *serial, int event);
 struct sk_device *sk_console_set_device(const char *name);
-void sk_kprintf(char *buf);
+void sk_kprintf(const char *fmt, ...);
+//void sk_kprintf(char *buf);
 #endif
 
