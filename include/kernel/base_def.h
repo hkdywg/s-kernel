@@ -13,13 +13,6 @@
 #ifndef __BASE_DEF_H_
 #define __BASE_DEF_H_
 
-/* s-kernel version information */
-#define SK_VERSION			1L		/* major version number */
-#define SK_SUBVERSION		0L		/* minor version number */
-#define SK_REVISION			0L		/* revise version number */
-
-#define KERNEL_VERISON		((SK_VERSION * 10000) + (SK_SUBVERSION * 100) \
-							 + SK_REVISION)
 
 /* s-kernel basic data type definitions */
 typedef signed char 				sk_int8_t;		/* 8bit integer type */
@@ -89,6 +82,13 @@ typedef sk_base_t 					sk_off_t;		/* type for offset */
  */
 #define SK_ALIGN_DOWN(size, align)	((size) & ~((align) -1 ))
 
+/*
+ * whether the parameter is a number 
+ * 
+ */
+#define SK_ISDIGIT(c)	((unsigned)((c) - '0') < 10)
+
+
 
 /*
  * sk_memset
@@ -155,6 +155,41 @@ static sk_int8_t sk_strcmp(const char *st_1, const char *st_2, sk_ubase_t count)
 	return ret;
 }
 
+/*
+ * sk_strcpy
+ * brief
+ * 		copy string of source address to dest address
+ * param
+ * 		src: the address of source string
+ * 		dest: the address of dest string
+ */
+static sk_uint8_t *sk_strcpy(char *dest, const char *src)
+{
+	char *original_dst = dest;
+
+	while(*src) {
+		*dest = *src;
+		dest++;
+		src++;
+	}
+	*dest = '\0';
+	return original_dst;
+}
+
+/*
+ * sk_strlen
+ * brief
+ * 		return the length of a string
+ * param
+ * 		s: the string
+ */
+static sk_size_t sk_strlen(const char *s) 
+{
+	const char *sc;
+	for(sc = s; *sc != '\0'; ++sc);	/* do nothing */
+	return sc - s;
+}
+
                                                                                                                                                                       
 /**                                                                                                                                                                   
  * This function finds the first bit set (beginning with the least significant bit)                                                                                   
@@ -201,6 +236,27 @@ static inline int __sk_ffs(int value)
                                                                                                                                                                       
     return __lowest_bit_bitmap[(value & 0xff000000) >> 24] + 25;                                                                                                      
 } 
+
+/* 
+ * sk_assert_handler
+ * brief
+ * 		assert function
+ * param
+ * 		ex_string: the assertion condition string
+ * 		func: the function name when assertion
+ * 		line: the file line when assertion
+ */
+static void sk_assert_handler(const char *ex_string, const char *func, sk_size_t line)
+{
+	//sk_kprintf("(%s) assertion failed at function: %s, line: %d \n", ex_string, func, line);
+	while(1);
+}
+
+#define SK_ASSERT(EX)										\
+if(!(EX))													\
+{															\
+	sk_assert_handler(#EX, __FUNCTION__, __LINE__);			\
+}
 
 #endif
 
