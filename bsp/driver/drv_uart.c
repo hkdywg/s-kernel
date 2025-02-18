@@ -32,7 +32,7 @@ void writel(volatile void *addr, unsigned int data)
 
 static int uart_getc(struct sk_serial_device *serial)
 {
-	char ch = -1;
+	int ch = -1;
 	struct sk_uart_device *uart = (struct sk_uart_device *)serial->parent.user_data;
 
 	if(!(readl((volatile void *)(uart->hw_base + 0x18)) & (1 << 4))) {
@@ -113,6 +113,7 @@ int sk_hw_uart_init()
 	sk_hw_serial_register(&__serial0, "uart0", 0, uart);
 
 	sk_hw_interrupt_install(uart->irq_num, sk_hw_uart_isr, &__serial0);
+	sk_hw_interrupt_umask(uart->irq_num);
 
 	return 0;
 }

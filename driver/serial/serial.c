@@ -265,12 +265,19 @@ void sk_hw_serial_isr(struct sk_serial_device *serial, int event)
 		{
 			sk_size_t rx_length = 0;
 			struct  sk_serial_rx_fifo *rx_fifo;
+			int ch = -1;
 			rx_fifo = (struct sk_serial_rx_fifo *)serial->serial_rx;
 			
 			/* get the length of the data from ring buffer */
 			rx_length = sk_ring_buffer_data_len(&(rx_fifo->rb));
-			if(rx_length == 0)
+			if(rx_length == rx_fifo->rb.buffer_size)
 				break;
+			while(1) {
+				ch = serial->ops->getc(serial);
+				if(ch == -1)
+					break;
+				sk_ring_buffer_putchar(&(rx_fifo->rb), ch);
+			}
 			/* trigger the receiving completion callback */
 			if(serial->parent.rx_indicate != SK_NULL)
 				serial->parent.rx_indicate(&(serial->parent), rx_length);
