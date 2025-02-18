@@ -25,6 +25,12 @@ SECTIONS
 		*(.rodata)						/* read-only data (constants) */
 		*(.rodata*)
 
+		/* section information for shell */
+		. = ALIGN(16);
+		__tsymtab_tart = .;
+		KEEP(*(Tsymtab))
+		__tsymtab_end = .;
+
 		/* section information for initial */
 		. = ALIGN(16);
 		__init_start = .;
