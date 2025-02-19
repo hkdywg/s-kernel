@@ -32,7 +32,7 @@
 #define GIC_IRQ_START 				0
 #define GIC_MAX_HANDLERS 			96
 
-#define TICK_PER_SECOND 			100
+#define TICK_PER_SECOND 			1000
 
 /* uart */
 #define PL011_UART_DR 				0x000
