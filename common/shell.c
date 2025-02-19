@@ -143,6 +143,38 @@ static void shell_push_history(struct shell_cmd *shell)
 }
 
 /*
+ * shell_exec
+ * brief
+ * 		find the command function and execute it
+ * param
+ * 		cmd: the string of command
+ * 		len: length of command
+ */
+static sk_uint8_t shell_exec(char *cmd, sk_size_t len)
+{
+	struct shell_syscall *index;
+	syscall_func cmd_func = SK_NULL;
+	/* delete space character beginnig of comand*/
+	while((len > 0) && (*cmd == ' ' || *cmd == '\t')) {
+		cmd++;
+		len--;
+	}
+	/* empty command */
+	if(len == 0)
+		return 0;
+
+	for(index = _syscall_table_begin; index < _syscall_table_end; index++) {
+		if(sk_strncmp(index->name, cmd, len) == 0) {
+			index->func();
+			return 0;
+		}
+	}
+	sk_kprintf("%s: command not found.\n", cmd);
+	
+	return -1;
+}
+
+/*
  * shell_thread_entry
  * brief
  * 		shell thread process, all command of shell will process by this function
@@ -260,6 +292,8 @@ void shell_thread_entry(void *arg)
 		if(ch == '\r' || ch == '\n' || ch == 0x03) {
 			shell_push_history(shell);
 			sk_kprintf("\n");
+			if(ch != 0x03)
+				shell_exec(shell->line, shell->line_position);
 			sk_kprintf(SHELL_PROMPT);
 			sk_memset(shell->line, 0, sizeof(shell->line));
 			shell->line_curpos = shell->line_position = 0;
@@ -284,8 +318,8 @@ int shell_system_init(void)
 	sk_err_t ret = SK_EOK;
 
 	extern const int __tsymtab_start, __tsymtab_end;
-	_syscall_table_begin = (struct shell_syscall *)__tsymtab_start;
-	_syscall_table_end   = (struct shell_syscall *)__tsymtab_end;
+	_syscall_table_begin = (struct shell_syscall *)&__tsymtab_start;
+	_syscall_table_end   = (struct shell_syscall *)&__tsymtab_end;
 
 	/* create and set shell structure */
 	shell = (struct shell_cmd *)sk_malloc(sizeof(struct shell_cmd));

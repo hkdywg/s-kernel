@@ -1,1 +1,1 @@
-obj-y := ring_buffer.o shell.o
+obj-y := ring_buffer.o shell.o cmd.o
