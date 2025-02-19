@@ -214,7 +214,7 @@ static sk_int32_t sk_strncmp(const char *cs, const char *ct, sk_size_t count)
 {
 	signed char ret = 0;
 	while(count) {
-		if((ret == *cs - *ct) != 0)
+		if((ret = *cs - *ct) != 0)
 			break;
 		else if(!(*cs++) || !(*ct++))
 			break;
