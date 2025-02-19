@@ -182,7 +182,6 @@ static sk_size_t sk_vsprintf(char *buf,
  * brief
  * 		this function will print a formatted string on system console.
  */
-#if 1
 void sk_kprintf(const char *fmt, ...)
 {
 	va_list args;
@@ -198,13 +197,6 @@ void sk_kprintf(const char *fmt, ...)
 
 	va_end(args);
 }
-#else
-void sk_kprintf(char *buf)
-{
-	if(_console_device)
-		sk_device_write(_console_device, 0, buf, 21);
-}
-#endif
 
 
 
