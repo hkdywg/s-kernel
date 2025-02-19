@@ -166,7 +166,28 @@ sk_err_t sk_serial_close(struct sk_device *dev)
 
 sk_size_t sk_serial_read(struct sk_device *dev, sk_size_t pos, void *buf, sk_size_t size)
 {
-	return SK_EOK;
+	struct sk_serial_device *serial = (struct sk_serial_device *)dev;
+	struct sk_serial_rx_fifo *rx_fifo = (struct sk_serial_rx_fifo *)serial->serial_rx;
+	sk_size_t recv_len = 0;
+
+	if(serial->config.rx_buf_size) {
+		recv_len = sk_ring_buffer_get(&(rx_fifo->rb), buf, size);
+		return recv_len;
+	} else {
+		sk_uint8_t *getc_buffer = buf;	
+		int ch = -1;
+		sk_size_t get_size = size;
+		while(size) {
+			ch = serial->ops->getc(serial);
+			if(ch == -1)
+				break;
+			*getc_buffer = ch;
+			++getc_buffer;
+			--size;
+		}
+
+		return get_size - size;
+	}
 }
 
 sk_size_t sk_serial_write(struct sk_device *dev, sk_size_t pos, const void  *buf, sk_size_t size)
