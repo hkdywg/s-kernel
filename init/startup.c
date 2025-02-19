@@ -15,6 +15,7 @@
 #include <timer.h>
 #include <sched.h>
 #include <board.h>
+#include <shell.h>
 
 extern unsigned char __bss_start;
 extern unsigned char __bss_end;
@@ -78,6 +79,8 @@ int skernel_startup(void)
 	sk_application_init();
 	/* idle thread init */
 	sk_thread_idle_init();
+	/* shell thread init */
+	shell_system_init();
 
 	/* system scheduler start */
 	sk_system_scheduler_start();
