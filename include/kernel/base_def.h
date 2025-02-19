@@ -89,6 +89,23 @@ typedef sk_base_t 					sk_off_t;		/* type for offset */
 #define SK_ISDIGIT(c)	((unsigned)((c) - '0') < 10)
 
 
+/*
+ * compile related definitions, gnu
+ */
+typedef __builtin_va_list 	__gnuc_va_list;
+typedef __gnuc_va_list 		va_list;
+#define va_start(v, l)		__builtin_va_start(v,l)
+#define va_end(v)			__builtin_va_end(v)
+#define va_arg(v, l)		__builtin_va_arg(v,l)
+
+#define SK_SECTION(x)		__attribute__((section(x)))
+#define SK_UNUSED(x)		__attribute__((unused))
+#define SK_USED(x)			__attribute__((used))
+#define ALIGN(n)			__attribute__((aligned(n)))
+#define SK_WEAK 			__attribute__((weak))
+#define sk_inline 			static __inline
+
+
 
 /*
  * sk_memset
@@ -135,6 +152,32 @@ static inline void *sk_memcpy(void *dst, const void *src, sk_ubase_t count)
 }
 
 /*
+ * sk_memcmp
+ * brief
+ * 		compare two areas of memory
+ * param
+ * 		cs, ct: block of memory
+ * 		count: size of the memory area
+ * return
+ * 		< 0, cs is smaller than ct
+ * 		> 0, cs is greater than ct
+ * 		= 0, cs is equal to ct
+ */
+static sk_int32_t sk_memcmp(const void *cs, const void *ct, sk_ubase_t count)
+{
+	const unsigned char *s1 = (const unsigned char *)cs;
+	const unsigned char *s2 = (const unsigned char *)ct;
+	int ret = 0;
+
+	for(;count > 0; ++s1, ++s2, count--) {
+		if((ret = *s1 - *s2) != 0)
+			break;
+	}
+
+	return ret;
+}
+
+/*
  * sk_strcmy
  * brief
  * 		compare two strings
@@ -148,6 +191,32 @@ static sk_int8_t sk_strcmp(const char *st_1, const char *st_2, sk_ubase_t count)
 
 	while(count) {
 		if((ret = *st_1++ - *st_2) != 0 || !*st_2++)
+			break;
+		count--;
+	}
+
+	return ret;
+}
+
+/*
+ * sk_strncmp
+ * brief
+ * 		compare two string with specified length
+ * param
+ * 		cs, ct: the string to be compared
+ * 		count: the maximum compare length
+ * return
+ * 		if return < 0, cs is smaller than ct
+ * 		if return < 0, ct is smaller than cs
+ * 		if return = 0, cs is equal to ct
+ */
+static sk_int32_t sk_strncmp(const char *cs, const char *ct, sk_size_t count)
+{
+	signed char ret = 0;
+	while(count) {
+		if((ret == *cs - *ct) != 0)
+			break;
+		else if(!(*cs++) || !(*ct++))
 			break;
 		count--;
 	}
@@ -258,5 +327,11 @@ if(!(EX))													\
 	sk_assert_handler(#EX, __FUNCTION__, __LINE__);			\
 }
 
+/*
+ * user interface functions
+ */
+struct sk_device *sk_console_set_device(const char *name);
+void sk_kprintf(const char *fmt, ...);
+struct sk_device *sk_console_get_device(void);
 #endif
 
