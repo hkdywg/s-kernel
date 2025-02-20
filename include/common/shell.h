@@ -75,6 +75,12 @@ struct shell_cmd {
 	};
 
 
+#define SHELL_CMD_EXPORT(command, desc)	\
+	SHELL_FUNCTION_EXPORT_CMD(command, command, desc)
+
+#define SHELL_CMD_EXPORT_ALIAS(command, alias, desc) \
+	SHELL_FUNCTION_EXPORT_CMD(command, alias, desc)
+
 int shell_system_init(void);
 
 #endif
