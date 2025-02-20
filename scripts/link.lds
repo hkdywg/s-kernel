@@ -27,7 +27,7 @@ SECTIONS
 
 		/* section information for shell */
 		. = ALIGN(16);
-		__tsymtab_tart = .;
+		__tsymtab_start = .;
 		KEEP(*(Tsymtab))
 		__tsymtab_end = .;
 
