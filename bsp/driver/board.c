@@ -40,8 +40,7 @@ void sk_hw_board_drv_init(void)
 	/* set console device */
 	sk_console_set_device(SK_CONSOLE_DEVICE_NAME);
 
-	/**/
-	//sk_kprintf("------skernel-------- %d\n", 123);
+	/* show kernel verison */
 	sk_show_version();
 }
 
