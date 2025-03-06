@@ -21,6 +21,12 @@
 #define SK_TIMER_FLAG_ONE_SHOT 		(0x0)		/* one shot timer */
 #define SK_TIMER_FLAG_PERIODIC 		(0x2)		/* periodic timer */
 
+#define SK_TIMER_CTRL_GET_TIME 		(0x00)
+#define SK_TIMER_CTRL_SET_TIME 		(0x01)
+#define SK_TIMER_CTRL_SET_ONSHOT 	(0x02)
+#define SK_TIMER_CTRL_SET_PERIODIC 	(0x04)
+#define SK_TIMER_CTRL_GET_STATE 	(0x08)
+
 /*
  * system timer structure
  */
@@ -36,13 +42,18 @@ struct sk_sys_timer
 	sk_tick_t	timeout_tick;				/* timeout tick */ 	
 };
 
+void sk_system_timer_init(void);
 sk_err_t sk_timer_delete(struct sk_sys_timer *timer);
 sk_err_t sk_timer_start(struct sk_sys_timer *timer);
-void sk_system_timer_init(void);
+sk_err_t sk_timer_stop(struct sk_sys_timer *timer);
+sk_err_t sk_timer_control(struct sk_sys_timer *timer, int cmd, void *arg);
 struct sk_sys_timer* sk_timer_create(const char *name,
 									  void (timeout)(void *param),
 									  void *param,
 									  sk_tick_t tick,
 									  sk_uint8_t flag);
 
+void sk_timer_init(struct sk_sys_timer *timer, const char *name,
+				   void (timeout)(void *param), void *param,
+				   sk_tick_t tick, sk_uint8_t flag);
 #endif
