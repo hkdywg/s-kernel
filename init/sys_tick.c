@@ -345,6 +345,23 @@ void sk_tick_increase(void)
 }
 
 /*
+ * sk_tick_from_ms
+ * brief
+ * 		calculate the tick from millisecond
+ * param
+ * 		ms: the specified millisecond
+ */
+sk_tick_t sk_tick_from_ms(sk_uint32_t ms)
+{
+	sk_tick_t tick;
+
+	tick = TICK_PER_SECOND * (ms / 1000);
+	tick += (TICK_PER_SECOND * (ms % 1000) + 999) / 1000;
+
+	return tick;
+}
+
+/*
  * timer isr process
  *
  * @param: none

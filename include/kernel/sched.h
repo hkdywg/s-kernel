@@ -57,7 +57,7 @@ struct sk_thread
 	/* tick */
 	sk_ubase_t 	init_tick;						/* thread's initialized tick */
 	sk_ubase_t 	remain_tick;					/* remaining tick */
-	struct sk_sys_timer	tick;					/* system tick */
+	struct sk_sys_timer	thread_timer;			/* thread timer */
 
 	void (*cleanup)(struct sk_thread *thread);	/* cleanup function when thread exit */
 	sk_ubase_t 	user_data; 						/* private user data bind this thread */

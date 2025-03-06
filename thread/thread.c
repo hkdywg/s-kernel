@@ -92,6 +92,39 @@ struct sk_thread* sk_current_thread(void)
 	return current_thread;
 }
 
+/*
+ * sk_thread_timeout
+ * brief
+ * 		this function will be called when thread timer timeout
+ * param
+ * 		param: argument of timer function
+ */
+void sk_thread_timeout(void *param)
+{
+	sk_base_t level;
+	struct sk_thread *thread = (struct sk_thread *)param;
+
+	/* disable interrupt */
+	level = hw_interrupt_disable();
+
+	/* remove from suspend list */
+	sk_list_del(&(thread->tlist));
+
+	/* insert to schedule ready list */
+	sk_schedule_insert_thread(thread);
+
+	/* enable interrupt */
+	hw_interrupt_enable(level);
+
+	/* do schedule */
+	sk_schedule();
+}
+
+/*
+ * __thread_exit
+ * brief
+ * 		this function will be called when thread delete
+ */
 static void __thread_exit(void)
 {
 	struct sk_thread *thread;
@@ -114,7 +147,7 @@ static void __thread_exit(void)
 	thread->stat = SK_THREAD_CLOSE;
 
 	/* remove it from system tick list */
-	sk_timer_delete(&thread->tick);
+	sk_timer_delete(&thread->thread_timer);
 
 	/* switch to next thread */
 	sk_schedule();
@@ -177,6 +210,11 @@ static sk_err_t __thread_init(struct sk_thread 	*thread,
 	/* init thread state and tick */
 	thread->init_tick = tick;
 	thread->remain_tick = tick;
+
+	/* initialize thread timer */
+	sk_timer_init(&(thread->thread_timer), thread->name,
+				  sk_thread_timeout, thread, 0, SK_TIMER_FLAG_ONE_SHOT);
+
 	thread->stat = SK_THREAD_INIT;
 	/* set cleanup function and userdata */
 	thread->cleanup = SK_NULL;
@@ -301,6 +339,87 @@ sk_err_t sk_thread_startup(struct sk_thread *thread)
 		sk_schedule();			/* do scheduling */
 
 	return SK_EOK;
+}
+
+/*
+ * sk_thread_suspend
+ * brief
+ * 		this function will suspend the specified thread and change it to suspend state
+ * param
+ * 		thread: the thread to be suspended
+ */
+sk_err_t sk_thread_suspend(struct sk_thread *thread)
+{
+	sk_base_t level;
+
+	if(thread->stat != SK_THREAD_READY && thread->stat != SK_THREAD_RUNNING)
+		return SK_ERROR;
+
+	/* disable interrupt */
+	level = hw_interrupt_disable();
+
+	/* change thread state */
+	sk_schedule_remove_thread(thread);
+	thread->stat = SK_THREAD_SUSPEND;
+
+	/* stop thread timer */
+	sk_timer_stop(&(thread->thread_timer));
+
+	/* enable interrupt */
+	hw_interrupt_enable(level);
+
+	return SK_EOK;
+}
+
+
+/*
+ * sk_thread_sleep
+ * brief 
+ * 		let current thread sleep for some ticks. this function will change current
+ * 		thead state to suspend, and set thread timer, after the timeout schedule will awaken this thread
+ * param
+ * 		tick: sleep ticks
+ */
+sk_err_t sk_thread_sleep(sk_tick_t tick)
+{
+	struct sk_thread *thread;
+	sk_base_t level;
+
+	/* get current thread */
+	thread = sk_current_thread();
+
+	/* disable interrupt */
+	level = hw_interrupt_disable();
+
+	/* suspend thread */
+	sk_thread_suspend(thread);
+
+	/* reset the timeout thread timer and start it */
+	sk_timer_control(&(thread->thread_timer), SK_TIMER_CTRL_SET_TIME, &tick);
+	sk_timer_start(&(thread->thread_timer));
+
+	/* enable interrupt */
+	hw_interrupt_enable(level);
+
+	sk_schedule();
+
+	return SK_EOK;
+}
+
+/*
+ * sk_thread_delay
+ * brief
+ * 		this function will let current thread delay for some ms
+ * param
+ * 		ms: the specifial millisecond will be delay
+ */
+sk_err_t sk_thread_delay(sk_uint32_t ms)
+{
+	sk_tick_t tick;
+
+	tick = sk_tick_from_ms(ms);
+
+	return sk_thread_sleep(tick);
 }
 
 static void sk_idle_entry(void *param) 

@@ -31,4 +31,5 @@ extern void sk_free(void *ptr);
 sk_tick_t sk_tick_get(void);
 sk_tick_t sk_idle_tick_get();
 
+sk_err_t sk_thread_delay(sk_uint32_t ms);
 #endif

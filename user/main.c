@@ -32,6 +32,10 @@ void main(void *arg)
 	sk_ubase_t cnt = 0;
 	float cpu_usage = 0.0;
 
+    sk_kprintf("prepare run main function cycle... \n");
+	sk_thread_delay(5000);
+    sk_kprintf("thread delay 5000ms done... \n");
+
 	struct sk_sys_timer test_timer1;
 	sk_timer_init(&test_timer1, "debug_timer", test_timer_func1, 
 				  SK_NULL, 1000, SK_TIMER_FLAG_PERIODIC);

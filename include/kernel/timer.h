@@ -47,6 +47,7 @@ sk_err_t sk_timer_delete(struct sk_sys_timer *timer);
 sk_err_t sk_timer_start(struct sk_sys_timer *timer);
 sk_err_t sk_timer_stop(struct sk_sys_timer *timer);
 sk_err_t sk_timer_control(struct sk_sys_timer *timer, int cmd, void *arg);
+sk_tick_t sk_tick_from_ms(sk_uint32_t ms);
 struct sk_sys_timer* sk_timer_create(const char *name,
 									  void (timeout)(void *param),
 									  void *param,
