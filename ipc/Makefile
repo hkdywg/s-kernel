@@ -1,1 +1,1 @@
-obj-y := ipc.o
+obj-y := ipc_base.o mutex.o
