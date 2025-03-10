@@ -351,8 +351,9 @@ sk_err_t sk_thread_startup(struct sk_thread *thread)
 sk_err_t sk_thread_suspend(struct sk_thread *thread)
 {
 	sk_base_t level;
+	sk_base_t stat = thread->stat & SK_THREAD_MASK;
 
-	if(thread->stat != SK_THREAD_READY && thread->stat != SK_THREAD_RUNNING)
+	if(stat != SK_THREAD_READY && stat != SK_THREAD_RUNNING)
 		return SK_ERROR;
 
 	/* disable interrupt */

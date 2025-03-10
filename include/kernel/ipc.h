@@ -15,6 +15,8 @@
 #include <base_def.h>
 #include <klist.h>
 #include <sched.h>
+#include <interrupt.h>
+#include <hw.h>
 
 /*
  * IPC flags annd control command definitions
@@ -49,6 +51,14 @@ struct sk_mutex
 	struct sk_thread 	 *owner;		/* current owner of mutex */
 };
 
+
+/* mutex relative interface */
+sk_err_t sk_mutex_init(struct sk_mutex *mutex, const char *name, sk_uint8_t flag);
+struct sk_mutex *sk_mutex_create(const char *name, sk_uint8_t flag);
+sk_err_t sk_mutex_delete(struct sk_mutex *mutex);
+sk_err_t sk_mutex_take(struct sk_mutex *mutex, sk_int32_t time);
+sk_err_t sk_mutex_trytake(struct sk_mutex *mutex);
+sk_err_t sk_mutex_release(struct sk_mutex *mutex);
 
 
 

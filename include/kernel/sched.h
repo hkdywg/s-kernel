@@ -23,6 +23,7 @@
 #define SK_THREAD_SUSPEND 		(0x02)			/* suspend status */
 #define SK_THREAD_RUNNING 		(0x04)			/* running status */
 #define SK_THREAD_CLOSE 		(0x08)			/* close status */
+#define SK_THREAD_MASK 			(0x0F)
 
 #define SK_THREAD_YIELD 		(0x10)
 
@@ -76,6 +77,8 @@ struct sk_thread *sk_thread_create(const char 			*name,
 							   sk_uint8_t 			priority,
 							   sk_uint32_t 			tick);
 void sk_thread_idle_init(void);
+sk_err_t sk_thread_resume(struct sk_thread *thread);
+sk_err_t sk_thread_suspend(struct sk_thread *thread);
 
 /*
  * scheduler interfaces
