@@ -25,6 +25,7 @@
 #define SK_IPC_FLAG_PRIO 	0x01 		/* PRIO IPC */
 
 #define SK_MUTEX_HOLD_MAX	0xFF 		/* maxium number of mutex */
+#define SK_SEM_VALUE_MAX 	0xFFFF 		/* maxium number of semaphore */
 
 /*
  * base structure of IPC object
@@ -51,6 +52,16 @@ struct sk_mutex
 	struct sk_thread 	 *owner;		/* current owner of mutex */
 };
 
+/*
+ * semaphore structure
+ */
+struct sk_sem
+{
+	struct sk_ipc_object parent;		/* inherit from ipc_object */
+
+	sk_uint16_t 		 value;			/* value of mutex */
+};
+
 
 /* mutex relative interface */
 sk_err_t sk_mutex_init(struct sk_mutex *mutex, const char *name, sk_uint8_t flag);
@@ -61,5 +72,13 @@ sk_err_t sk_mutex_trytake(struct sk_mutex *mutex);
 sk_err_t sk_mutex_release(struct sk_mutex *mutex);
 
 
+/* semaphore relative interface */
+sk_err_t sk_sem_init(struct sk_sem *sem, const char *name, 
+					 sk_uint16_t value, sk_uint8_t flag);
+struct sk_sem *sk_sem_create(const char *name, sk_uint16_t value, sk_uint8_t flag);
+sk_err_t sk_sem_delete(struct sk_sem *sem);
+sk_err_t sk_sem_take(struct sk_sem *sem, sk_int32_t time);
+sk_err_t sk_sem_trytake(struct sk_sem *sem);
+sk_err_t sk_sem_release(struct sk_sem *sem);
 
 #endif

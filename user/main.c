@@ -14,9 +14,12 @@
 #include <ipc.h>
 
 //#define TEST_TIMER
-#define TEST_MUTEX
+//#define TEST_MUTEX
+#define TEST_SEMAPHORE
 
 struct sk_mutex g_mutex;
+struct sk_sem 	g_sem;
+
 sk_uint8_t timer1_cnt = 0; 
 sk_uint8_t timer2_cnt = 0; 
 
@@ -35,19 +38,21 @@ void test_timer_func2(void *param)
 void user_app_1(void *arg)
 {
 	while(1) {
-#if 1
+#ifdef TEST_MUTEX
 		sk_mutex_take(&g_mutex, 10000);
 		sk_kprintf("%s take mutex\n", sk_current_thread()->name);	
 		sk_thread_delay(100);
 		sk_kprintf("%s release mutex\n", sk_current_thread()->name);	
 		sk_mutex_release(&g_mutex);
 		sk_thread_delay(1000);
-#else
+#endif
+#ifdef TEST_SEMAPHORE
+		sk_sem_take(&g_sem, 10000);
+		sk_kprintf("%s take sem\n", sk_current_thread()->name);	
 		sk_thread_delay(100);
-		sk_thread_suspend(sk_current_thread());
-		sk_thread_delay(100);
-		sk_thread_resume(sk_current_thread());
-		sk_schedule();
+		sk_kprintf("%s release sem\n", sk_current_thread()->name);	
+		sk_sem_release(&g_sem);
+		sk_thread_delay(1000);
 #endif
 	}
 }
@@ -55,19 +60,21 @@ void user_app_1(void *arg)
 void user_app_2(void *arg)
 {
 	while(1) {
-#if 1
+#ifdef TEST_MUTEX
 		sk_mutex_take(&g_mutex, 10000);
 		sk_kprintf("%s take mutex\n", sk_current_thread()->name);	
 		sk_thread_delay(100);
 		sk_kprintf("%s release mutex\n", sk_current_thread()->name);	
 		sk_mutex_release(&g_mutex);
 		sk_thread_delay(1000);
-#else
+#endif
+#ifdef TEST_SEMAPHORE
+		sk_sem_take(&g_sem, 10000);
+		sk_kprintf("%s take sem\n", sk_current_thread()->name);	
 		sk_thread_delay(100);
-		sk_thread_suspend(sk_current_thread());
-		sk_thread_delay(100);
-		sk_thread_resume(sk_current_thread());
-		sk_schedule();
+		sk_kprintf("%s release sem\n", sk_current_thread()->name);	
+		sk_sem_release(&g_sem);
+		sk_thread_delay(1000);
 #endif
 	}
 }
@@ -75,6 +82,7 @@ void user_app_2(void *arg)
 void user_app_init(void)
 {
 	sk_mutex_init(&g_mutex, "test_mutex", SK_IPC_FLAG_PRIO);
+	sk_sem_init(&g_sem, "test_sem", 2, SK_IPC_FLAG_PRIO);
 
 	char user_thread_name_1[SK_NAME_MAX] = "user_app_1";
 	struct sk_thread *thread_1 = sk_thread_create(user_thread_name_1,
@@ -84,7 +92,6 @@ void user_app_init(void)
 												20,
 												20);
 	sk_thread_startup(thread_1);
-#if 1
 	char user_thread_name_2[SK_NAME_MAX] = "user_app_2";
 	struct sk_thread *thread_2 = sk_thread_create(user_thread_name_2,
 												user_app_2,
@@ -93,7 +100,6 @@ void user_app_init(void)
 												20,
 												20);
 	sk_thread_startup(thread_2);
-#endif
 }
 
 void main(void *arg)
@@ -119,6 +125,9 @@ void main(void *arg)
 #endif
 
 #ifdef TEST_MUTEX
+	user_app_init();
+#endif
+#ifdef TEST_SEMAPHORE
 	user_app_init();
 #endif
 	while(1) {
