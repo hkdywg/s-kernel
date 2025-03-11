@@ -158,6 +158,7 @@ static inline void sk_list_add_tail(sk_list_t *head, sk_list_t *new)
 static inline void sk_list_del(sk_list_t *entry)
 {
 	__list_del(entry->prev, entry->next);
+	entry->next = entry->prev = entry;
 }
 
 /*
