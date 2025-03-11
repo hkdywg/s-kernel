@@ -73,7 +73,7 @@ sk_err_t __ipc_list_suspend(sk_list_t *list,
 	switch(flag) {
 		case SK_IPC_FLAG_FIFO:
 			sk_list_add_tail(list, &(thread->tlist));
-			break;
+		break;
 		case SK_IPC_FLAG_PRIO:
 		{
 			sk_list_t *n;
@@ -91,8 +91,8 @@ sk_err_t __ipc_list_suspend(sk_list_t *list,
 			/* not find a suitable position */
 			if(n == list)
 				sk_list_add_tail(list, &(thread->tlist));
-			break;
 		}
+		break;
 		default:
 			break;
 	}

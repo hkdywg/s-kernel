@@ -165,7 +165,7 @@ sk_err_t sk_mutex_take(struct sk_mutex *mutex, sk_int32_t time)
 
 				/* do schedule */
 				sk_schedule();
-	
+
 				return SK_EOK;
 			}
 		}
@@ -223,10 +223,12 @@ sk_err_t sk_mutex_release(struct sk_mutex *mutex)
 	if(mutex->hold == 0) {
 		/* wakeup suspended thread */
 		if(!sk_list_empty(&mutex->parent.suspend_thread)) {
+
 			/* get suspended thread */
 			thread = sk_list_entry(mutex->parent.suspend_thread.next, 
 								   struct sk_thread,
 								   tlist); 
+
 			/* set new owner and priority */
 			mutex->owner = thread;
 			mutex->original_pri = thread->current_pri;
@@ -254,3 +256,4 @@ sk_err_t sk_mutex_release(struct sk_mutex *mutex)
 
 	return SK_EOK;
 }
+

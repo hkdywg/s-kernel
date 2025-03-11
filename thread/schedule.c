@@ -145,7 +145,8 @@ void sk_schedule(void)
 			from_thread  = current_thread;
 			current_thread = to_thread;
 			/* insert thread to ready list */
-			if(from_thread->stat != SK_THREAD_RUNNING && from_thread->stat != SK_THREAD_CLOSE)
+			//if(from_thread->stat == SK_THREAD_READY || from_thread->stat == SK_THREAD_RUNNING)
+			if(from_thread->stat != SK_THREAD_SUSPEND && from_thread->stat != SK_THREAD_CLOSE)
 				sk_schedule_insert_thread(from_thread);
 			current_thread->stat &= ~SK_THREAD_YIELD;
 			/* remove thread from ready list */

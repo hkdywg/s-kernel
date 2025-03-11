@@ -14,7 +14,7 @@
 #include <ipc.h>
 
 //#define TEST_TIMER
-//#define TEST_MUTEX
+#define TEST_MUTEX
 
 struct sk_mutex g_mutex;
 sk_uint8_t timer1_cnt = 0; 
@@ -35,26 +35,40 @@ void test_timer_func2(void *param)
 void user_app_1(void *arg)
 {
 	while(1) {
-		//sk_mutex_take(&g_mutex, 10000);
-    	sk_kprintf("%s take the mutex\n", sk_current_thread()->name);
-    	sk_kprintf("%s app runing ...\n", sk_current_thread()->name);
+#if 1
+		sk_mutex_take(&g_mutex, 10000);
+		sk_kprintf("%s take mutex\n", sk_current_thread()->name);	
+		sk_thread_delay(100);
+		sk_kprintf("%s release mutex\n", sk_current_thread()->name);	
+		sk_mutex_release(&g_mutex);
 		sk_thread_delay(1000);
-		//sk_mutex_release(&g_mutex);
-    	sk_kprintf("%s release the mutex\n", sk_current_thread()->name);
-		sk_thread_delay(1000);
+#else
+		sk_thread_delay(100);
+		sk_thread_suspend(sk_current_thread());
+		sk_thread_delay(100);
+		sk_thread_resume(sk_current_thread());
+		sk_schedule();
+#endif
 	}
 }
 
 void user_app_2(void *arg)
 {
 	while(1) {
+#if 1
 		sk_mutex_take(&g_mutex, 10000);
-    	sk_kprintf("%s take the mutex\n", sk_current_thread()->name);
-    	sk_kprintf("%s app runing ...\n", sk_current_thread()->name);
-		sk_thread_delay(1000);
+		sk_kprintf("%s take mutex\n", sk_current_thread()->name);	
+		sk_thread_delay(100);
+		sk_kprintf("%s release mutex\n", sk_current_thread()->name);	
 		sk_mutex_release(&g_mutex);
-    	sk_kprintf("%s release the mutex\n", sk_current_thread()->name);
 		sk_thread_delay(1000);
+#else
+		sk_thread_delay(100);
+		sk_thread_suspend(sk_current_thread());
+		sk_thread_delay(100);
+		sk_thread_resume(sk_current_thread());
+		sk_schedule();
+#endif
 	}
 }
 
@@ -70,15 +84,16 @@ void user_app_init(void)
 												20,
 												20);
 	sk_thread_startup(thread_1);
-
-	char user_thread_name_2[SK_NAME_MAX] = "user_app_1";
+#if 1
+	char user_thread_name_2[SK_NAME_MAX] = "user_app_2";
 	struct sk_thread *thread_2 = sk_thread_create(user_thread_name_2,
 												user_app_2,
 												SK_NULL,
 												2048,
 												20,
 												20);
-	//sk_thread_startup(thread_2);
+	sk_thread_startup(thread_2);
+#endif
 }
 
 void main(void *arg)
@@ -109,8 +124,8 @@ void main(void *arg)
 	while(1) {
 		cnt++;
 		cpu_usage = sk_idle_tick_get()/sk_tick_get();
-		//sk_thread_delay(1000);
-    	//sk_kprintf("%s thread runing ...\n", sk_current_thread()->name);
+//		sk_thread_delay(1000);
+//    	sk_kprintf("%s thread runing ...\n", sk_current_thread()->name);
 #ifdef TEST_TIMER
 		if(timer1_cnt == 10) {
 			sk_timer_stop(&test_timer1);
