@@ -76,9 +76,9 @@ sk_err_t sk_mutex_unlock(struct sk_mutex *mutex);
 sk_err_t sk_sem_init(struct sk_sem *sem, const char *name, 
 					 sk_uint16_t value, sk_uint8_t flag);
 struct sk_sem *sk_sem_create(const char *name, sk_uint16_t value, sk_uint8_t flag);
-sk_err_t sk_sem_delete(struct sk_sem *sem);
-sk_err_t sk_sem_take(struct sk_sem *sem, sk_int32_t time);
-sk_err_t sk_sem_trytake(struct sk_sem *sem);
-sk_err_t sk_sem_release(struct sk_sem *sem);
+sk_err_t sk_sem_destroy(struct sk_sem *sem);
+sk_err_t sk_sem_wait(struct sk_sem *sem, sk_int32_t time);
+sk_err_t sk_sem_trywait(struct sk_sem *sem);
+sk_err_t sk_sem_post(struct sk_sem *sem);
 
 #endif

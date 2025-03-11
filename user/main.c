@@ -14,8 +14,8 @@
 #include <ipc.h>
 
 //#define TEST_TIMER
-#define TEST_MUTEX
-//#define TEST_SEMAPHORE
+//#define TEST_MUTEX
+#define TEST_SEMAPHORE
 
 struct sk_mutex g_mutex;
 struct sk_sem 	g_sem;
@@ -47,11 +47,11 @@ void user_app_1(void *arg)
 		sk_thread_delay(1000);
 #endif
 #ifdef TEST_SEMAPHORE
-		sk_sem_take(&g_sem, 10000);
+		sk_sem_wait(&g_sem, 10000);
 		sk_kprintf("%s take sem\n", sk_current_thread()->name);	
 		sk_thread_delay(100);
 		sk_kprintf("%s release sem\n", sk_current_thread()->name);	
-		sk_sem_release(&g_sem);
+		sk_sem_post(&g_sem);
 		sk_thread_delay(1000);
 #endif
 	}
@@ -69,11 +69,11 @@ void user_app_2(void *arg)
 		sk_thread_delay(1000);
 #endif
 #ifdef TEST_SEMAPHORE
-		sk_sem_take(&g_sem, 10000);
+		sk_sem_wait(&g_sem, 10000);
 		sk_kprintf("%s take sem\n", sk_current_thread()->name);	
 		sk_thread_delay(100);
 		sk_kprintf("%s release sem\n", sk_current_thread()->name);	
-		sk_sem_release(&g_sem);
+		sk_sem_post(&g_sem);
 		sk_thread_delay(1000);
 #endif
 	}

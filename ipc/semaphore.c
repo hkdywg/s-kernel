@@ -74,13 +74,13 @@ struct sk_sem *sk_sem_create(const char *name, sk_uint16_t value, sk_uint8_t fla
 }
 
 /*
- * sk_sem_delete
+ * sk_sem_destroy
  * brief
  * 		delete a semaphore object which is created by the sk_sem_create function
  * param
- * 		mutex: pointer to semaphore object to be deleted
+ * 		sem: pointer to semaphore object to be deleted
  */
-sk_err_t sk_sem_delete(struct sk_sem *sem)
+sk_err_t sk_sem_destroy(struct sk_sem *sem)
 {
 	if(sem == SK_NULL)
 		return SK_EOK;
@@ -96,7 +96,7 @@ sk_err_t sk_sem_delete(struct sk_sem *sem)
 
 
 /*
- * sk_sem_take
+ * sk_sem_wait
  * brief
  * 		this function will take a semaphore, if the semaphore is unavailable, the thread shall
  * 		wait for the semaphore up to specified time
@@ -104,7 +104,7 @@ sk_err_t sk_sem_delete(struct sk_sem *sem)
  * 		sem: pointer to semaphore
  * 		time: time out period
  */
-sk_err_t sk_sem_take(struct sk_sem *sem, sk_int32_t time)
+sk_err_t sk_sem_wait(struct sk_sem *sem, sk_int32_t time)
 {
 	struct sk_thread *thread;
 	sk_ubase_t temp;
@@ -156,28 +156,28 @@ sk_err_t sk_sem_take(struct sk_sem *sem, sk_int32_t time)
 
 
 /*
- * sk_sem_trytake
+ * sk_sem_trywait
  * brief
  * 		this function will try to take a semaphore. if the semaphore is unavailable, the thread
  * 		return immediately.
  * pram
  * 		mutex: pointer to mutex object
  */
-sk_err_t sk_sem_trytake(struct sk_sem *sem)
+sk_err_t sk_sem_trywait(struct sk_sem *sem)
 {
-	return sk_sem_take(sem, 0);
+	return sk_sem_wait(sem, 0);
 }
 
 
 /*
- * sk_sem_release
+ * sk_sem_post
  * brief
  * 		this function will release a semaphore. if there is a thread suspend on the semaphore,
  * 		the thread will be resumed.
  * param
  * 		sem: poniter to a semaphore object 
  */
-sk_err_t sk_sem_release(struct sk_sem *sem)
+sk_err_t sk_sem_post(struct sk_sem *sem)
 {
 	struct sk_thread *thread;
 	sk_ubase_t temp;
