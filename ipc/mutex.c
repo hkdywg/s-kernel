@@ -102,7 +102,7 @@ sk_err_t sk_mutex_delete(struct sk_mutex *mutex)
 
 
 /*
- * sk_mutex_take
+ * sk_mutex_lock
  * brief
  * 		this function will take a mutex, if the mutex is unavailable, the thread shall
  * 		wait for the mutex up to specified time
@@ -110,7 +110,7 @@ sk_err_t sk_mutex_delete(struct sk_mutex *mutex)
  * 		mutex: pointer to mutex
  * 		time: time out period
  */
-sk_err_t sk_mutex_take(struct sk_mutex *mutex, sk_int32_t time)
+sk_err_t sk_mutex_lock(struct sk_mutex *mutex, sk_int32_t time)
 {
 	struct sk_thread *thread;
 	sk_ubase_t temp;
@@ -186,9 +186,9 @@ sk_err_t sk_mutex_take(struct sk_mutex *mutex, sk_int32_t time)
  * pram
  * 		mutex: pointer to mutex object
  */
-sk_err_t sk_mutex_trytake(struct sk_mutex *mutex)
+sk_err_t sk_mutex_trylock(struct sk_mutex *mutex)
 {
-	return sk_mutex_take(mutex, 0);
+	return sk_mutex_lock(mutex, 0);
 }
 
 
@@ -200,7 +200,7 @@ sk_err_t sk_mutex_trytake(struct sk_mutex *mutex)
  * param
  * 		mutex: poniter to a mutex object 
  */
-sk_err_t sk_mutex_release(struct sk_mutex *mutex)
+sk_err_t sk_mutex_unlock(struct sk_mutex *mutex)
 {
 	struct sk_thread *thread;
 	sk_ubase_t temp;

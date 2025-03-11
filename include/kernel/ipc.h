@@ -67,9 +67,9 @@ struct sk_sem
 sk_err_t sk_mutex_init(struct sk_mutex *mutex, const char *name, sk_uint8_t flag);
 struct sk_mutex *sk_mutex_create(const char *name, sk_uint8_t flag);
 sk_err_t sk_mutex_delete(struct sk_mutex *mutex);
-sk_err_t sk_mutex_take(struct sk_mutex *mutex, sk_int32_t time);
-sk_err_t sk_mutex_trytake(struct sk_mutex *mutex);
-sk_err_t sk_mutex_release(struct sk_mutex *mutex);
+sk_err_t sk_mutex_lock(struct sk_mutex *mutex, sk_int32_t time);
+sk_err_t sk_mutex_trylock(struct sk_mutex *mutex);
+sk_err_t sk_mutex_unlock(struct sk_mutex *mutex);
 
 
 /* semaphore relative interface */
