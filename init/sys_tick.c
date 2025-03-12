@@ -291,6 +291,17 @@ void sk_timer_check(void)
 			/* call timeout function */
 			if(timer->parent.flag & SK_TIMER_FLAG_ACTIVE)
 				timer->timeout_func(timer->param);
+			/* if timer is sopped in timeout function, break */
+			/*
+			 * because the timer list is separated, the sk_list_for_each(list_1, &__timer_list) 
+			 * will infinite loop
+			 */
+			if(list_1->next == list_1->prev) {
+				/* enable interrupt */
+				hw_interrupt_enable(level);
+				return;
+			}
+
 			/* check timer flag */
 			if(timer->parent.flag & SK_TIMER_FLAG_PERIODIC) {
 				/* start it*/
