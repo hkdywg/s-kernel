@@ -29,37 +29,9 @@ sk_uint8_t timer2_cnt = 0;
 #define EVENT_FLAG0 (1 << 0)
 #define EVENT_FLAG1 (1 << 1)
 
-void print_current_thread_name()
-{
-	sk_kprintf("current thread is %s\n", sk_current_thread()->name);
-}
-
-SHELL_CMD_EXPORT(print_current_thread_name, show current running thread);
-
-
-void test_timer_func1(void *param)
-{
-    sk_kprintf("timer_1 timeout ... \n");
-	timer1_cnt++;
-}
-
-void test_timer_func2(void *param)
-{
-    sk_kprintf("timer_2 timeout ... \n");
-	timer2_cnt++;
-}
-
 void user_app_1(void *arg)
 {
 	while(1) {
-#ifdef TEST_MUTEX
-		sk_mutex_lock(&g_mutex, 10000);
-		sk_kprintf("%s take mutex\n", sk_current_thread()->name);	
-		sk_thread_delay(100);
-		sk_kprintf("%s release mutex\n", sk_current_thread()->name);	
-		sk_mutex_unlock(&g_mutex);
-		sk_thread_delay(1000);
-#endif
 #ifdef TEST_SEMAPHORE
 		sk_sem_wait(&g_sem, 10000);
 		sk_kprintf("%s take sem\n", sk_current_thread()->name);	
@@ -83,14 +55,6 @@ void user_app_1(void *arg)
 void user_app_2(void *arg)
 {
 	while(1) {
-#ifdef TEST_MUTEX
-		sk_mutex_lock(&g_mutex, 10000);
-		sk_kprintf("%s take mutex\n", sk_current_thread()->name);	
-		sk_thread_delay(100);
-		sk_kprintf("%s release mutex\n", sk_current_thread()->name);	
-		sk_mutex_unlock(&g_mutex);
-		sk_thread_delay(1000);
-#endif
 #ifdef TEST_SEMAPHORE
 		sk_sem_wait(&g_sem, 10000);
 		sk_kprintf("%s take sem\n", sk_current_thread()->name);	
@@ -118,7 +82,6 @@ void user_app_2(void *arg)
 
 void user_app_init(void)
 {
-	sk_mutex_init(&g_mutex, "test_mutex", SK_IPC_FLAG_PRIO);
 	sk_sem_init(&g_sem, "test_sem", 2, SK_IPC_FLAG_PRIO);
 	sk_event_init(&g_event, "test_event", SK_IPC_FLAG_PRIO);
 
