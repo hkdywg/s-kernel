@@ -60,6 +60,10 @@ struct sk_thread
 	sk_ubase_t 	remain_tick;					/* remaining tick */
 	struct sk_sys_timer	thread_timer;			/* thread timer */
 
+	/* thread event */
+	sk_uint32_t event_set;						/* event set value */
+	sk_uint8_t  event_info;						/* event information */
+
 	void (*cleanup)(struct sk_thread *thread);	/* cleanup function when thread exit */
 	sk_ubase_t 	user_data; 						/* private user data bind this thread */
 };
