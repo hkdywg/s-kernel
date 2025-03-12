@@ -156,9 +156,11 @@ sk_err_t sk_mutex_lock(struct sk_mutex *mutex, sk_int32_t time)
 				/* suspend current thread */
 				__ipc_list_suspend(&(mutex->parent.suspend_thread), thread, SK_IPC_FLAG_PRIO);
 
-				/* reset the timeout thread timer and start it */
-				sk_timer_control(&(thread->thread_timer), SK_TIMER_CTRL_SET_TIME, &time);
-				sk_timer_start(&(thread->thread_timer));
+				if(time > 0) {
+					/* reset the timeout thread timer and start it */
+					sk_timer_control(&(thread->thread_timer), SK_TIMER_CTRL_SET_TIME, &time);
+					sk_timer_start(&(thread->thread_timer));
+				}
 
 				/* enable interrupt */
 				hw_interrupt_enable(temp);
