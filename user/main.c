@@ -12,11 +12,12 @@
 #include <skernel.h>
 #include <timer.h>
 #include <ipc.h>
+#include <shell.h>
 
 //#define TEST_TIMER
 //#define TEST_MUTEX
 //#define TEST_SEMAPHORE
-#define TEST_EVENT
+//#define TEST_EVENT
 
 struct sk_mutex g_mutex;
 struct sk_sem 	g_sem;
@@ -27,6 +28,14 @@ sk_uint8_t timer2_cnt = 0;
 
 #define EVENT_FLAG0 (1 << 0)
 #define EVENT_FLAG1 (1 << 1)
+
+void print_current_thread_name()
+{
+	sk_kprintf("current thread is %s\n", sk_current_thread()->name);
+}
+
+SHELL_CMD_EXPORT(print_current_thread_name, show current running thread);
+
 
 void test_timer_func1(void *param)
 {
@@ -135,36 +144,13 @@ void main(void *arg)
 {
 	sk_ubase_t cnt = 0;
 	float cpu_usage = 0.0;
-#ifdef TEST_TIMER
-    sk_kprintf("prepare run main function cycle... \n");
-	sk_thread_delay(5000);
-    sk_kprintf("thread delay 5000ms done... \n");
 
-	struct sk_sys_timer test_timer1;
-	sk_timer_init(&test_timer1, "debug_timer", test_timer_func1, 
-				  SK_NULL, 1000, SK_TIMER_FLAG_PERIODIC);
-
-	sk_timer_start(&test_timer1);
-
-	struct sk_sys_timer test_timer2;
-	sk_timer_init(&test_timer2, "debug_timer", test_timer_func2, 
-				  SK_NULL, 2000, SK_TIMER_FLAG_ONE_SHOT);
-
-	sk_timer_start(&test_timer2);
-#endif
-
-	user_app_init();
+//	user_app_init();
 
 	while(1) {
 		cnt++;
 		cpu_usage = sk_idle_tick_get()/sk_tick_get();
-//		sk_thread_delay(1000);
+		sk_thread_delay(1000);
 //    	sk_kprintf("%s thread runing ...\n", sk_current_thread()->name);
-#ifdef TEST_TIMER
-		if(timer1_cnt == 10) {
-			sk_timer_stop(&test_timer1);
-			sk_timer_control(&test_timer2, SK_TIMER_CTRL_SET_PERIODIC, SK_NULL);
-		}
-#endif
 	}
 }
