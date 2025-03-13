@@ -236,8 +236,7 @@ sk_err_t sk_msg_queue_send_wait(struct sk_msg_queue *mq,
 	/* link msg to message queue */
 	if(mq->msg_queue_tail != SK_NULL)
 		((struct  sk_mq_message *)mq->msg_queue_tail)->next = msg;
-	else
-		mq->msg_queue_tail = msg;
+	mq->msg_queue_tail = msg;
 	/* if the head is empty, set head */
 	if(mq->msg_queue_head == SK_NULL)
 		mq->msg_queue_head = msg;
