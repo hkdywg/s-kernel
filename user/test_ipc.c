@@ -1,5 +1,5 @@
 /*
- *  test_case.c
+ *  test_ipc.c
  *  brief
  *  	test case of kernel module
  *  
@@ -183,3 +183,53 @@ void test_event(void)
 }
 
 SHELL_CMD_EXPORT(test_event, test case of ipc semaphore);
+
+void mailbox_thread_1(void *param)
+{
+	struct sk_mailbox *mb = (struct sk_mailbox *)param;
+	for(sk_uint8_t i = 0; i < 128; i++) {
+		sk_mailbox_send_wait(mb, i, 1000);
+		sk_thread_delay(100);
+	}
+}
+
+void mailbox_thread_2(void *param)
+{
+	struct sk_mailbox *mb = (struct sk_mailbox *)param;
+	sk_ubase_t value;
+	sk_uint8_t cnt = 0;
+
+	while(1) {
+		sk_mailbox_recv(mb, &value, 10000);
+		sk_kprintf("%s recv mail: %d\n", sk_current_thread()->name, value);
+		if(cnt >= 127)
+			break;
+	}
+}
+
+void test_mailbox(void)
+{
+	static struct sk_mailbox mb; 
+	static sk_ubase_t  mb_pool[64];
+	sk_mailbox_init(&mb, "test_mailbox", mb_pool, 64, SK_IPC_FLAG_PRIO);
+
+	char thread_name_1[SK_NAME_MAX] = "mailbox_thread_1";
+	struct sk_thread *thread_1 = sk_thread_create(thread_name_1,
+												mailbox_thread_1,
+												&mb,
+												2048,
+												20,
+												20);
+	sk_thread_startup(thread_1);
+	char thread_name_2[SK_NAME_MAX] = "mailbox_thread_2";
+	struct sk_thread *thread_2 = sk_thread_create(thread_name_2,
+												mailbox_thread_2,
+												&mb,
+												2048,
+												20,
+												20);
+	sk_thread_startup(thread_2);
+}
+
+SHELL_CMD_EXPORT(test_mailbox, test case of ipc mailbox);
+

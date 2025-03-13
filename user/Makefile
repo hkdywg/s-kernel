@@ -1,1 +1,1 @@
-obj-y := main.o test_case.o
+obj-y := main.o test_ipc.o

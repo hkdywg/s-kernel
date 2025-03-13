@@ -1,1 +1,1 @@
-obj-y := ipc_base.o mutex.o semaphore.o event.o
+obj-y := ipc_base.o mutex.o semaphore.o event.o mailbox.o

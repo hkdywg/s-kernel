@@ -76,6 +76,23 @@ struct sk_event
 	sk_uint32_t 		 set;			/* event set */
 };
 
+/*
+ * mailbox structure 
+ */
+struct sk_mailbox
+{
+	struct sk_ipc_object parent;		/* inherit from ipc_object */
+
+	sk_ubase_t 		*msg_pool;			/* start address of message buffer */
+	sk_uint16_t 	size;				/* size of message pool */
+
+	sk_uint16_t		entry;				/* index of messages in msg_pool */
+	sk_uint16_t 	in_offset;			/* input offset of  the message buffer */
+	sk_uint16_t 	out_offset;			/* output offset of message buffer */
+
+	sk_list_t 		suspend_sender_thread; 	/*  sender thread  suspended on this mailbox */
+};
+
 
 /* mutex relative interface */
 sk_err_t sk_mutex_init(struct sk_mutex *mutex, const char *name, sk_uint8_t flag);
@@ -102,5 +119,13 @@ sk_err_t sk_event_destroy(struct sk_event *event);
 sk_err_t sk_event_send(struct sk_event *event, sk_uint16_t set);
 sk_err_t sk_event_recv(struct sk_event *event, sk_uint32_t set, 
 					   sk_uint8_t option, sk_int32_t timeout, sk_uint32_t *recved);
+
+/* mailbox relative interface */
+struct sk_mailbox *sk_mailbox_create(const char *name, sk_size_t size, sk_uint8_t flag);
+sk_err_t sk_mailbox_init(struct sk_mailbox *mb, const char *name, void *msgpool, sk_size_t size, sk_uint8_t flag);
+sk_err_t sk_mailbox_delete(struct sk_mailbox *mb);
+sk_err_t sk_mailbox_send_wait(struct sk_mailbox *mb, sk_ubase_t value, sk_int32_t timeout);
+sk_err_t sk_mailbox_send(struct sk_mailbox *mb, sk_ubase_t value);
+sk_err_t sk_mailbox_recv(struct sk_mailbox *mb, sk_ubase_t *value, sk_int32_t timeout);
 
 #endif
