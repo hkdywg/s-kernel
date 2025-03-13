@@ -93,6 +93,25 @@ struct sk_mailbox
 	sk_list_t 		suspend_sender_thread; 	/*  sender thread  suspended on this mailbox */
 };
 
+/*
+ * message queue structure
+ */
+struct sk_msg_queue
+{
+	struct sk_ipc_object parent;		/* inherit from ipc_object */
+
+	sk_ubase_t 		*msg_pool;			/* start address of message queue */
+	sk_uint16_t 	msg_size;			/* message size of message */
+	sk_uint16_t 	max_msgs; 			/* max number of messages */
+
+	sk_uint16_t 	entry;				/*  index of messages in the queue */
+
+	void 			*msg_queue_head;	/* list head */
+	void 			*msg_queue_tail; 	/* list tail */
+	void 			*msg_queue_free;	/* pointer indicated the free node of queue */
+
+	sk_list_t 		suspend_sender_thread;	/* sender thread suspended on this message queue */
+};
 
 /* mutex relative interface */
 sk_err_t sk_mutex_init(struct sk_mutex *mutex, const char *name, sk_uint8_t flag);
@@ -127,5 +146,13 @@ sk_err_t sk_mailbox_delete(struct sk_mailbox *mb);
 sk_err_t sk_mailbox_send_wait(struct sk_mailbox *mb, sk_ubase_t value, sk_int32_t timeout);
 sk_err_t sk_mailbox_send(struct sk_mailbox *mb, sk_ubase_t value);
 sk_err_t sk_mailbox_recv(struct sk_mailbox *mb, sk_ubase_t *value, sk_int32_t timeout);
+
+/* message queue interface */
+struct sk_msg_queue *sk_msg_queue_create(const char *name, sk_size_t msg_size, sk_size_t max_msgs, sk_uint8_t flag);
+struct sk_msg_queue *sk_msg_queue_init(struct sk_msg_queue *mq, const char *name, void *msgpool, sk_size_t msg_size, sk_size_t pool_size, sk_uint8_t flag);
+sk_err_t sk_msg_queue_delete(struct sk_msg_queue *mq);
+sk_err_t sk_msg_queue_send_wait(struct sk_msg_queue *mq, const void *buffer, sk_size_t size, sk_int32_t timeout);
+sk_err_t sk_msg_queue_send(struct sk_msg_queue *mq, const void *buffer, sk_size_t size);
+sk_err_t sk_msg_queue_recv(struct sk_msg_queue *mq, void *buffer, sk_size_t size, sk_int32_t timeout);
 
 #endif

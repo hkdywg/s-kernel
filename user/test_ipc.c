@@ -200,9 +200,9 @@ void mailbox_thread_2(void *param)
 	sk_uint8_t cnt = 0;
 
 	while(1) {
-		sk_mailbox_recv(mb, &value, 10000);
-		sk_kprintf("%s recv mail: %d\n", sk_current_thread()->name, value);
-		if(cnt >= 127)
+		if(SK_EOK == sk_mailbox_recv(mb, &value, 10000))
+			sk_kprintf("%s recv mail: %d\n", sk_current_thread()->name, value);
+		else
 			break;
 	}
 }
@@ -232,4 +232,53 @@ void test_mailbox(void)
 }
 
 SHELL_CMD_EXPORT(test_mailbox, test case of ipc mailbox);
+
+void msg_queue_thread_1(void *param)
+{
+	struct sk_msg_queue *mq = (struct sk_msg_queue *)param;
+	char send_msg[] = "test message queue...";
+	for(sk_uint8_t i = 0; i < 5; i++) {
+		sk_msg_queue_send_wait(mq, send_msg, sizeof(send_msg), 1000);
+		sk_thread_delay(100);
+	}
+}
+
+void msg_queue_thread_2(void *param)
+{
+	struct sk_msg_queue *mq = (struct sk_msg_queue *)param;
+	char recv_msg[64];
+
+	while(1) {
+		if(SK_EOK == sk_msg_queue_recv(mq, recv_msg, 64, 10000)) 
+			sk_kprintf("%s recv message: %s\n", sk_current_thread()->name, recv_msg);
+		else
+			break;
+	}
+}
+
+void test_msg_queue(void)
+{
+	static struct sk_msg_queue mq; 
+	static sk_ubase_t  mq_pool[256];
+	sk_msg_queue_init(&mq, "test_message_queue", mq_pool, 22, 256, SK_IPC_FLAG_PRIO);
+
+	char thread_name_1[SK_NAME_MAX] = "mq_thread_1";
+	struct sk_thread *thread_1 = sk_thread_create(thread_name_1,
+												msg_queue_thread_1,
+												&mq,
+												2048,
+												20,
+												20);
+	sk_thread_startup(thread_1);
+	char thread_name_2[SK_NAME_MAX] = "mq_thread_2";
+	struct sk_thread *thread_2 = sk_thread_create(thread_name_2,
+												msg_queue_thread_2,
+												&mq,
+												2048,
+												20,
+												20);
+	sk_thread_startup(thread_2);
+}
+
+SHELL_CMD_EXPORT(test_msg_queue, test case of ipc message queue);
 
