@@ -440,7 +440,7 @@ sk_tick_t sk_idle_tick_get()
 
 void sk_thread_idle_init(void) 
 {
-	char idle_thread_name[SK_NAME_MAX] = "idle_thread";
+	char idle_thread_name[SK_NAME_MAX] = "kidle";
 
 	struct sk_thread *thread = sk_thread_create(idle_thread_name,
 												sk_idle_entry,
