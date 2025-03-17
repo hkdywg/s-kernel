@@ -34,7 +34,7 @@ SECTIONS
 		/* section information for initial */
 		. = ALIGN(16);
 		__init_start = .;
-		KEEP(*(SORT(.skernel_fn*)))
+		KEEP(*(SORT(.sk_init_fn*)))
 		__init_end = .;
 		. = ALIGN(16);
 

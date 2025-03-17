@@ -99,13 +99,38 @@ typedef __gnuc_va_list 		va_list;
 #define va_arg(v, l)		__builtin_va_arg(v,l)
 
 #define SK_SECTION(x)		__attribute__((section(x)))
-#define SK_UNUSED(x)		__attribute__((unused))
-#define SK_USED(x)			__attribute__((used))
+#define SK_UNUSED 			__attribute__((unused))
+#define SK_USED 			__attribute__((used))
 #define ALIGN(n)			__attribute__((aligned(n)))
 #define SK_WEAK 			__attribute__((weak))
 #define sk_inline 			static __inline
 
+/*
+ * initialize export
+ */
+typedef int (*init_fn_t)(void);
+#define INIT_EXPORT(fn, level) \
+	SK_USED const init_fn_t __sk_init_##fn SK_SECTION(".sk_init_fn." level) = fn
 
+/*
+ *	board init routines will be called in sk_board_component_init() function
+ *	prev/device/component/ev init routines will be called in init_thread() function
+ */
+
+/* board init routines will be called in board_init() function */
+#define INIT_BOARD_EXPORT(fn)		INIT_EXPORT(fn, "1")
+
+/* component pre-initialize */
+#define INIT_PREV_EXPORT(fn)		INIT_EXPORT(fn, "2")
+
+/* device initialize (camera driver ...) */
+#define INIT_DEVICE_EXPORT(fn)		INIT_EXPORT(fn, "3")
+
+/* components initialize (tcp_server ...) */
+#define INIT_COMPONENT_EXPORT(fn)	INIT_EXPORT(fn, "4")
+
+/* env initialize (mount disk, ...) */
+#define INIT_ENV_EXPORT(fn)			INIT_EXPORT(fn, "5")
 
 /*
  * sk_memset

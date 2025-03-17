@@ -14,6 +14,11 @@
 #include <config.h>
 #include <board.h>
 
+/*
+ * sk_show_version
+ * brief
+ * 		show the s-kernel version information
+ */
 void sk_show_version(void) {
     sk_kprintf("      .-'`'-.        \n");
     sk_kprintf("    /        \\      \n");
@@ -25,6 +30,31 @@ void sk_show_version(void) {
     sk_kprintf("   Build: %s %s\n", __DATE__, __TIME__);
     sk_kprintf("   Copyright 2024-2025\n");
     sk_kprintf("   Powered by yinwg\n");
+}
+
+static int sk_board_init_start()
+{
+	return 0;
+}
+INIT_EXPORT(sk_board_init_start, "0.end");
+
+static int sk_board_init_end()
+{
+	return 0;
+}
+INIT_EXPORT(sk_board_init_end, "1.end");
+
+/*
+ * sk_board_component_init
+ * brief
+ * 		board relative init funtion called
+ */
+void sk_board_component_init()
+{
+	const init_fn_t *fn_ptr;
+
+	for(fn_ptr = &__sk_init_sk_board_init_start; fn_ptr < &__sk_init_sk_board_init_end; fn_ptr++)
+		(*fn_ptr)();
 }
 
 /*
@@ -42,5 +72,8 @@ void sk_hw_board_drv_init(void)
 
 	/* show kernel verison */
 	sk_show_version();
+
+	/* board component initialize */
+	sk_board_component_init();
 }
 

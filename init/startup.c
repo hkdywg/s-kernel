@@ -46,6 +46,20 @@ void sk_hw_board_init(void)
 }
 
 /*
+ * sk_system_component_init
+ * brief
+ * 		s-kernel system init funtion called
+ */
+void sk_system_component_init()
+{
+	extern init_fn_t __sk_init_sk_board_init_end, __init_end;
+	const init_fn_t *fn_ptr;
+
+	for(fn_ptr = &__sk_init_sk_board_init_end; fn_ptr < &__init_end; fn_ptr++)
+		(*fn_ptr)();
+}
+
+/*
  * sk_application_init
  * brief
  * 		create and start the user main thread, but this thread will not run
@@ -75,6 +89,8 @@ int skernel_startup(void)
 	sk_system_timer_init();
 	/* scheduler system init */
 	sk_system_scheduler_init();
+	/* system component init */
+	sk_system_component_init();
 	/* user main thread init */
 	sk_application_init();
 	/* idle thread init */
