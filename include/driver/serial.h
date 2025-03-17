@@ -41,7 +41,7 @@
 #define FLOWCONTROL_CTSRTS 				1
 
 #define SK_SERIAL_RX_BUF_SIZE 			64
-#define SK_SERIAL_TX_BUF_SIZE 			64
+#define SK_SERIAL_TX_BUF_SIZE 			128
 
 #define SK_SERIAL_RX_BLOCK 				0x100
 #define SK_SERIAL_RX_NON_BLOCK 			0x200
