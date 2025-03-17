@@ -1,1 +1,2 @@
-obj-y := main.o test_ipc.o
+obj-y := main.o 
+obj-y += test_ipc.o

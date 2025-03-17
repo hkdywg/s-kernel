@@ -1,1 +1,2 @@
-obj-y := drv_uart.o board.o
+obj-y := drv_uart.o 
+obj-y += board.o

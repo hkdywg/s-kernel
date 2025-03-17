@@ -1,1 +1,5 @@
-obj-y := startup.o irq.o sys_tick.o kobj.o device.o
+obj-y := startup.o 
+obj-y += irq.o 
+obj-y += sys_tick.o 
+obj-y += kobj.o 
+obj-y += device.o
