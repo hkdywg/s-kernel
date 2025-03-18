@@ -1,1 +1,1 @@
-obj-y := fs.o
+obj-y = vfs/

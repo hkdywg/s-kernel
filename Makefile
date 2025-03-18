@@ -89,6 +89,7 @@ KERNEL_INCLUDE 	:= -I$(srctree)/include/config \
 					-I$(srctree)/include/kernel \
 					-I$(srctree)/include/driver \
 					-I$(srctree)/include/common \
+					-I$(srctree)/include/fs \
 					-I$(srctree)/bsp/include \
 					-I$(srctree)/arch/aarch64/include
 
