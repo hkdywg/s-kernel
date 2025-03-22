@@ -61,7 +61,7 @@ int sk_vfs_init(void)
 	sk_memset(working_dir, 0, sizeof(working_dir));
 	working_dir[0] = '/';
 }
-INIT_PREV_EXPORT(sk_vfs_init);
+//INIT_PREV_EXPORT(sk_vfs_init);
 
 /*
  * sk_vfs_lock
