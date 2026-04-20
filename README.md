@@ -201,8 +201,3 @@ sk_err_t sk_device_register(struct sk_device *dev, const char *name, sk_uint16_t
 ## 许可证
 
 本项目基于 **GPL-2.0** 许可证开源。
-
-## 联系方式
-
-- 邮箱：hkdywg@163.com
-
