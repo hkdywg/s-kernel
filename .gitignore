@@ -54,11 +54,7 @@ modules.order
 #
 /tags
 /TAGS
-/linux
-/vmlinux
-/vmlinux.32
-/vmlinux-gdb.py
-/vmlinuz
+/kernel
 /System.map
 /Module.markers
 /modules.builtin.modinfo
@@ -147,3 +143,8 @@ x509.genkey
 # Clang's compilation database file
 /compile_commands.json
 /build_out/
+
+# tools chains generated files
+/tools/env_config.sh
+/tools/__pycache__
+/tools/gnu_gcc
