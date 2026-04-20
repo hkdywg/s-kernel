@@ -14,9 +14,11 @@ import platform
 from ci import CI
 
 toolchains_config = {
-    'aarch64':
-    {
-        'Linux' : 'gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz',
+    'aarch64': {
+        'Linux': {
+            'file': 'gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz',
+            'prefix': 'aarch64-linux-gnu-'
+        },
     },
 }
 
@@ -26,9 +28,17 @@ env_variables = {
     'CROSS_COMPILE' : 'cross_comile'
 }
 
-def toolchain_exists(toolchain_path):
-    gcc_bin = os.path.join(toolchain_path, 'gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu', 'bin', 'aarch64-linux-gnu-gcc')
-    return os.path.isfile(gcc_bin)
+def toolchain_exists(toolchain_path, zfile, cross_prefix):
+    dirname = zfile.replace('.tar.xz', '').replace('.tar.gz', '')
+
+    gcc_path = os.path.join(
+        toolchain_path,
+        dirname,
+        'bin',
+        cross_prefix + 'gcc'
+    )
+
+    return os.path.isfile(gcc_path)
 
 if __name__ == '__main__':
     # download toolchain
@@ -39,11 +49,15 @@ if __name__ == '__main__':
     ci = CI()
     toolchain_path = os.path.join(os.path.abspath('.'), 'gnu_gcc')
     platform = platform.system()
-    if toolchain_exists(toolchain_path):
+
+    cfg = toolchains_config[target][platform]
+    zfile = cfg['file'] 
+    prefix = cfg['prefix']
+
+    if toolchain_exists(toolchain_path, zfile, prefix):
         print("Toolchain already exists, skipping download.")
     else:
     	try:
-    	    zfile = toolchains_config[target][platform]
     	    URL = 'https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/' + zfile
     	except:
     	    print('not found target')
